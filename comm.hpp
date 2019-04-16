@@ -1,0 +1,117 @@
+#pragma once
+
+#if defined(__clang__)
+	#define CPP_CPLUS			(1)
+#elif defined(__GNUG__)
+	#define CPP_GNUG			(1)
+#elif defined(_MSC_VER)
+	#define CPP_MSVC			(1)
+#else
+	#error "unknown compiler"
+#endif
+
+#if defined(__GNUC__)
+	#define UNUSED				__attribute__((unused))
+#else
+	#define UNUSED
+#endif
+
+#if defined(CPP_MSVC)
+	#pragma warning(default:4716)
+#endif
+
+// https://github.com/spacemoose/ostream_indenter
+#include "indent_facet.hpp"
+
+#define Rvalue(a)		std::move(a)
+#define Forward(a)		std::forward<decltype(a)>(a)
+
+#define IsTrue			!!
+#define Not				!
+
+#define EndL			'\n'
+
+namespace Sql1
+{
+	class BadTypeError : public std::runtime_error { public: using runtime_error::runtime_error; };
+
+	class SysRoot
+	{
+	public:
+		virtual ~SysRoot() = default;
+
+		virtual void output(std::ostream& os) const = 0;
+	};
+
+	template<typename T, typename std::enable_if< std::is_base_of<SysRoot, T>::value >::type* = nullptr>
+	inline std::ostream& operator<<(std::ostream& os, const std::vector<std::shared_ptr<T>>& arg)
+	{
+		for (const auto& e: arg)
+		{
+			e->output(os);
+		}
+
+		return os;
+	}
+
+	// ex.) const vector<string>& arg
+	//
+	inline std::string join_strs(const std::vector<std::string>& strs, const char* delim = "")
+	{
+		if (strs.empty())
+		{
+			return "";
+		}
+
+		std::ostringstream ss;
+		std::copy(std::begin(strs), std::end(strs), std::ostream_iterator<std::string>(ss, delim));
+
+		auto s = ss.str();
+		s.erase(s.length() - std::char_traits<char>::length(delim));
+
+		return s;
+	}
+
+	inline std::ostream& operator<<(std::ostream& os, const std::vector<std::string>& arg)
+	{
+/*
+		for (const auto& e: arg)
+		{
+			os << e << ",";
+		}
+*/
+		os << join_strs(arg, ",");
+
+		return os;
+	}
+
+	inline bool is_allowed_name(const std::string& arg)
+	{
+		const char* p = arg.c_str();
+
+		while (*p)
+		{
+			if ('a' <= *p && *p <= 'z')
+			{
+			}
+			else if ('A' <= *p && *p <= 'Z')
+			{
+			}
+			else if ('0' <= *p && *p <= '9')
+			{
+			}
+			else if (*p == '_')
+			{
+			}
+			else
+			{
+				return false;
+			}
+
+			++p;
+		}
+
+		return true;
+	}
+}
+
