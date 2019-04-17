@@ -40,7 +40,7 @@
 	#define drv_ctx				driver_.context
 	#define drv_loc				drv_ctx->locat
 
-	#define S1_FLEX_WARN(a)		driver_.error(a, __FILE__, __LINE__)
+	#define S1_FLEX_WARN(a)		driver_.error(std::cerr, a, __FILE__, __LINE__)
 
 	namespace Sql1
 	{
@@ -58,7 +58,11 @@ P			([Pp][+-]?{D}+)
 FS			(f|F|l|L)
 IS			((u|U)|(u|U)?(l|L|ll|LL)|(l|L|ll|LL)(u|U))
 
-%x COMMSTATE STRSTATE
+ESC			\\
+SQ			\'
+DQ			\"
+
+%x COMMSTATE STRSTATE QIDSTATE
 
 %%
 
@@ -83,28 +87,6 @@ IS			((u|U)|(u|U)?(l|L|ll|LL)|(l|L|ll|LL)(u|U))
 }
 
 <STRSTATE>{
-	[^\\\n']+		{
-						drv_loc.step();
-
-						temp_str += YYText();
-					}
-	\\.				{
-						drv_loc.step();
-
-						char c = YYText()[1];
-
-						switch (c)
-						{
-							case 'a':	{ temp_str += '\a';	break; }
-							case 'b':	{ temp_str += '\b';	break; }
-							case 'f':	{ temp_str += '\f';	break; }
-							case 'n':	{ temp_str += '\n';	break; }
-							case 'r':	{ temp_str += '\r';	break; }
-							case 't':	{ temp_str += '\t';	break; }
-							case 'v':	{ temp_str += '\v';	break; }
-							default:	{ temp_str += c;	break; }
-						}
-					}
 	\n				{
 						drv_loc.lines();
 						drv_loc.step();
@@ -112,6 +94,16 @@ IS			((u|U)|(u|U)?(l|L|ll|LL)|(l|L|ll|LL)(u|U))
 						S1_FLEX_WARN("Unterminated string");
 
 						yy_pop_state();
+					}
+	\\.				{
+						drv_loc.step();
+
+						temp_str += YYText();
+					}
+	[^']			{
+						drv_loc.step();
+
+						temp_str += YYText();
 					}
 	'				{
 						drv_loc.step();
@@ -121,24 +113,50 @@ IS			((u|U)|(u|U)?(l|L|ll|LL)|(l|L|ll|LL)(u|U))
 					}
 }
 
+<QIDSTATE>{
+	\n				{
+						drv_loc.lines();
+						drv_loc.step();
+
+						S1_FLEX_WARN("Unterminated string");
+
+						yy_pop_state();
+					}
+	[^`]			{
+						drv_loc.step();
+
+						temp_str += YYText();
+					}
+	`				{
+						drv_loc.step();
+						yy_pop_state();
+
+						return Parser::make_IDENTIFIER(temp_str, drv_loc);
+					}
+}
+
 <INITIAL>{
 	"/*"			{
 						drv_loc.step();
 						yy_push_state(COMMSTATE);
 					}
 	'				{
-						drv_loc.step();
-
 						temp_str = "";
 
+						drv_loc.step();
 						yy_push_state(STRSTATE);
+					}
+	`				{
+						temp_str = "";
+
+						drv_loc.step();
+						yy_push_state(QIDSTATE);
 					}
 
 	"//"[^\n]*				{ drv_loc.step(); }
 	"--"[^\n]*				{ drv_loc.step(); }
 
 	"="						{ return Parser::make_ASSIGN(drv_loc); }
-	"`"						{ return Parser::make_BQUOTE(drv_loc); }
 	","						{ return Parser::make_COMMA(drv_loc); }
 	";"						{ return Parser::make_SEMICOL(drv_loc); }
 	"("						{ return Parser::make_OPENPAR(drv_loc); }
@@ -153,6 +171,11 @@ IS			((u|U)|(u|U)?(l|L|ll|LL)|(l|L|ll|LL)(u|U))
 	"IF"					{ return Parser::make_IF(drv_loc); }
 	"EXISTS"				{ return Parser::make_EXISTS(drv_loc); }
 	"WRITE"					{ return Parser::make_WRITE(drv_loc); }
+
+	"INSERT"				{ return Parser::make_INSERT(drv_loc); }
+	"VALUES"				{ return Parser::make_VALUES(drv_loc); }
+	"UPDATE"				{ return Parser::make_UPDATE(drv_loc); }
+	"DELETE"				{ return Parser::make_DELETE(drv_loc); }
 
 	"BIGINT"				{ return Parser::make_BIGINT(drv_loc); }
 	"TINYINT"				{ return Parser::make_TINYINT(drv_loc); }
@@ -179,8 +202,6 @@ IS			((u|U)|(u|U)?(l|L|ll|LL)|(l|L|ll|LL)(u|U))
 	"DEFAULT"				{ return Parser::make_DEFAULT(drv_loc); }
 	"CURRENT_TIMESTAMP"		{ return Parser::make_CURRENT_TIMESTAMP(drv_loc); }
 	"ON"					{ return Parser::make_ON(drv_loc); }
-	"UPDATE"				{ return Parser::make_UPDATE(drv_loc); }
-	"DELETE"				{ return Parser::make_DELETE(drv_loc); }
 	"COMMENT"				{ return Parser::make_COMMENT(drv_loc); }
 
 	"UNIQUE"				{ return Parser::make_UNIQUE(drv_loc); }

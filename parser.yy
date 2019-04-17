@@ -74,8 +74,8 @@
 
 	#define drv_ctx				driver_.context
 
-	#define S1_WARN(a)			driver_.error(a, __FILE__, __LINE__)
-	#define S1_ERROR(a)			driver_.error(a, __FILE__, __LINE__); YYABORT
+	#define S1_WARN(a)			driver_.error(std::cerr, a, __FILE__, __LINE__)
+	#define S1_ERROR(a)			driver_.error(std::cerr, a, __FILE__, __LINE__); YYABORT
 	#define S1_ASSERT(a, b)		if (! (a)) { S1_ERROR((b)); }
 	#define S1_SWAP(a, b)		if (! (b)) { S1_ERROR("swap source is null"); } std::swap((a), (b))
 
@@ -95,7 +95,6 @@
 	END		0			"End Of File"
 
 	ASSIGN				"="
-	BQUOTE				"`"
 	COMMA				","
 	SEMICOL				";"
 	OPENPAR				"("
@@ -110,6 +109,11 @@
 	IF					"if"
 	EXISTS				"exists"
 	WRITE				"write"
+
+	INSERT				"insert"
+	VALUES				"values"
+	UPDATE				"update"
+	DELETE				"delete"
 
 	BIGINT				"bigint"
 	TINYINT				"tinyint"
@@ -136,8 +140,6 @@
 	DEFAULT				"default"
 	CURRENT_TIMESTAMP	"current_timestamp"
 	ON					"on"
-	UPDATE				"update"
-	DELETE				"delete"
 	COMMENT				"comment"
 
 	UNIQUE				"unique"
@@ -180,7 +182,12 @@
 	;
 
 %type
-	<std::string>					name
+	<std::string>					ident
+	;
+
+%type
+	<Stmt*>							stmt
+									ddl
 	;
 
 %type
@@ -216,6 +223,10 @@
 	;
 
 %type
+	<std::vector<StmtSPtr>>			stmt.list
+	;
+
+%type
 	<std::vector<ColdefSPtr>>		coldef.list
 	;
 
@@ -229,7 +240,7 @@
 									tabcond.list
 
 %type
-	<std::vector<std::string>>		name.list
+	<std::vector<std::string>>		ident.list
 	;
 
 // ---------------------------------------------------------------------------
@@ -244,60 +255,88 @@ start
 	: %empty
 		{
 		}
-	| stmt.list
+	| stmt.list[stmts]
 		{
+			bool fatal{ false };
+
+			for (const auto& stmt: $stmts)
+			{
+				stmt->output(std::cerr);
+
+				const auto errors = stmt->checkSpannerSyntax();
+
+				if (! errors.empty())
+				{
+					for (const auto& e: errors)
+					{
+						if (! e->canIgnore())
+						{
+							fatal = true;
+						}
+					}
+				}
+			}
+
+			if (fatal)
+			{
+				S1_ERROR("続行できない障害を検出しました");
+			}
+
+			for (const auto& stmt: $stmts)
+			{
+				std::cout << stmt->convert();
+
+			}
 		}
 	;
 
 stmt.list
 	: stmt.list[orig] stmt
 		{
+			$$ = std::move($orig);
+
+			if ($stmt)
+			{
+				$$.emplace_back($stmt);
+			}
 		}
 	| stmt
 		{
+			if ($stmt)
+			{
+				$$.emplace_back($stmt);
+			}
 		}
 	;
 
 stmt
 	: ";"
 		{
+			$$ = nullptr;
 		}
-	| ddl ";"
+	| ddl[orig] ";"
 		{
+			$$ = $orig;
 		}
 	;
 
 ddl
-	: "create" "table" if_exists name[tabname] "(" coldef.list[coldefs]
+	: "create" "table" if_exists ident[tabname] "(" coldef.list[coldefs]
 		tabcond.list.or.empty[tabconds] ")" tabopt.list.or.empty
 		{
-			Table table{ $tabname, std::move($coldefs), std::move($tabconds) };
-
-			table.output(std::cout);
-
-			const auto errors = table.checkSpannerSyntax();
-
-			if (! errors.empty())
-			{
-				for (const auto& e: errors)
-				{
-					if (! e->canIgnore())
-					{
-						S1_ERROR("続行できない障害を検出しました");
-					}
-				}
-			}
-
-			std::cout << table.convert() << std::endl;
+			$$ = new CreateTable{ $tabname, std::move($coldefs), std::move($tabconds) };
 		}
-	| "drop" "table" if_exists name[tabname]
+	| "drop" "table" if_exists ident[tabname]
 		{
+			$$ = nullptr;
 		}
-	| "lock" "tables" name[tabname] "write"
+	| "lock" "tables" ident[tabname] "write"
 		{
+			$$ = nullptr;
 		}
 	| "unlock" "tables"
 		{
+			$$ = nullptr;
 		}
 	;
 
@@ -326,9 +365,9 @@ coldef.list
 	;
 
 coldef
-	: name coltype colopt.list.or.empty[colopts]
+	: ident coltype colopt.list.or.empty[colopts]
 		{
-			$$ = new Coldef{ $name, $coltype, std::move($colopts) };
+			$$ = new Coldef{ $ident, $coltype, std::move($colopts) };
 		}
 	;
 
@@ -514,25 +553,25 @@ tabcond.list
 	;
 
 tabcond
-	: "primary" "key" "(" name.list[names] ")"
+	: "primary" "key" "(" ident.list[names] ")"
 		{
 			$$ = new Tabcond{ Tabcond::EType::PRIMARY_KEY, std::move($names) };
 		}
-	| "unique" "key" name "(" name.list[names] ")"
+	| "unique" "key" ident "(" ident.list[names] ")"
 		{
-			$$ = new Tabcond{ Tabcond::EType::UNIQUE_KEY, std::move($names), $name };
+			$$ = new Tabcond{ Tabcond::EType::UNIQUE_KEY, std::move($names), $ident };
 		}
-	| "constraint" name[keyname] "foreign" "key" "(" name.list[names] ")"
-		"references" name[reftab] "(" name.list[refcols] ")" refopt.or.empty[refopt]
+	| "constraint" ident[keyname] "foreign" "key" "(" ident.list[names] ")"
+		"references" ident[reftab] "(" ident.list[refcols] ")" refopt.or.empty[refopt]
 		{
 			$$ = new Tabcond{
 				Tabcond::EType::FOREIGN_KEY, std::move($names), $keyname,
 				$reftab, std::move($refcols), $refopt
 			};
 		}
-	| "key" name "(" name.list[names] ")"
+	| "key" ident "(" ident.list[names] ")"
 		{
-			$$ = new Tabcond{ Tabcond::EType::KEY, std::move($names), $name };
+			$$ = new Tabcond{ Tabcond::EType::KEY, std::move($names), $ident };
 		}
 	;
 
@@ -577,25 +616,21 @@ refopt.action
 		}
 	;
 
-name.list
-	: name.list[orig] "," name
+ident.list
+	: ident.list[orig] "," ident
 		{
 			$$ = std::move($orig);
 
-			$$.push_back(std::move($name));
+			$$.push_back(std::move($ident));
 		}
-	| name
+	| ident
 		{
-			$$.push_back(std::move($name));
+			$$.push_back(std::move($ident));
 		}
 	;
 
-name
-	: "`" IDENTIFIER[orig] "`"
-		{
-			$$ = std::move($orig);
-		}
-	| IDENTIFIER[orig]
+ident
+	: IDENTIFIER[orig]
 		{
 			$$ = std::move($orig);
 		}
@@ -644,6 +679,6 @@ tabopt
 
 void Sql1::Parser::error(const location& arg_loc, const std::string& msg)
 {
-	driver_.error(arg_loc, msg, __FILE__, __LINE__);
+	driver_.error(std::cerr, arg_loc, msg, __FILE__, __LINE__);
 }
 

@@ -6,7 +6,8 @@ cd $(dirname $(readlink -f "$0"))
 
 clear
 
-insrc='input.sql.txt'
+insql='input.sql.txt'
+outsql='output.sql.txt'
 exefile='mysqldump2spanner.exe'
 
 #cc='/usr/bin/clang-6.0'
@@ -19,22 +20,27 @@ echo
 echo "**** run ***"
 
 echo "LEAK CHECK <!"
-echo "cat ${insrc} | valgrind --leak-check=full -v ./${exefile}"
+echo "cat ${insql} | valgrind --leak-check=full -v ./${exefile}"
 echo "!>"
 echo "DEBUG <!"
-echo "gdb -q -ex 'set args < ${insrc}' -ex 'run' -ex 'where' -ex 'kill' -ex 'quit' ./${exefile}"
+echo "gdb -q -ex 'set args < ${insql}' -ex 'run' -ex 'where' -ex 'kill' -ex 'quit' ./${exefile}"
 echo "!>"
 echo
 
 #if [ "$1" != '' ]
 #then
-#  cat ${insrc} | valgrind --leak-check=full -v ./${exefile} > result.out
+#  cat ${insql} | valgrind --leak-check=full -v ./${exefile} > ${outsql}
 #else
-#  cat ${insrc} | ./${exefile} "$@" > result.out
+#  cat ${insql} | ./${exefile} "$@" > ${outsql}
 #fi
 
-cat ${insrc} | ./${exefile} "$@" 2>&1 | expand -t 2 > result.out
-cat result.out
+cat ${insql} | ./${exefile} "$@" > ${outsql}
+rc=${PIPESTATUS[1]}
+
+echo
+echo "# === output ===>>>"
+cat ${outsql}
+echo "# === output ===<<<"
 
 if [ -f copy.sh ]
 then
@@ -43,7 +49,7 @@ then
 fi
 
 echo
-echo "# done."
+echo "# done. [$rc]"
 
-exit 0
+exit $rc
 

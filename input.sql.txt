@@ -24,22 +24,10 @@ DROP TABLE IF EXISTS `tab1`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tab1` (
   `skey` varchar(10) NOT NULL,
-  `dt` text CHARACTER SET latin1 NOT NULL,
-  `di` int(11) DEFAULT NULL,
-  `bf` tinyint(1) DEFAULT NULL,
-  `dtk1` varchar(10) NOT NULL,
-  `ts11` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `dd` double DEFAULT NULL,
-  `df` float DEFAULT NULL,
-  `day` date DEFAULT NULL,
-  `si` smallint(6) DEFAULT NULL,
-  `mi` mediumint(9) DEFAULT NULL,
-  `lt` longtext,
-  `dc1` decimal(3,1) DEFAULT NULL,
-  `dc2` decimal(3,0) DEFAULT NULL,
-  `dc3` decimal(3,0) DEFAULT NULL,
-  PRIMARY KEY (`skey`),
-  KEY `tab1_idx_1` (`dtk1`)
+  `data` varchar(100) NOT NULL,
+  `num` int(11) DEFAULT NULL,
+  `dtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`skey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -49,32 +37,8 @@ CREATE TABLE `tab1` (
 
 LOCK TABLES `tab1` WRITE;
 /*!40000 ALTER TABLE `tab1` DISABLE KEYS */;
+INSERT INTO `tab1` (`skey`, `data`, `num`, `dtime`) VALUES ('A001','abc \' def 	 hij \n klm',NULL,'2019-04-17 23:06:13'),('A002','ABC\"',1,'2019-04-17 23:06:13');
 /*!40000 ALTER TABLE `tab1` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `tab2`
---
-
-DROP TABLE IF EXISTS `tab2`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `tab2` (
-  `skey` varchar(10) NOT NULL,
-  `i` int(11) DEFAULT NULL,
-  PRIMARY KEY (`skey`),
-  KEY `tab2_idx_1` (`i`),
-  CONSTRAINT `tab2_ibfk_1` FOREIGN KEY (`skey`) REFERENCES `tab1` (`skey`) On delete NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `tab2`
---
-
-LOCK TABLES `tab2` WRITE;
-/*!40000 ALTER TABLE `tab2` DISABLE KEYS */;
-/*!40000 ALTER TABLE `tab2` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -86,4 +50,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-17  0:38:45
+-- Dump completed on 2019-04-17 23:06:17

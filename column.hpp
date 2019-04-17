@@ -5,7 +5,7 @@
 
 namespace Sql1
 {
-	class Errmsg : SysRoot
+	class Errmsg : public SysRoot
 	{
 	public:
 		enum struct EType
@@ -68,7 +68,7 @@ namespace Sql1
 
 	using ErrmsgSPtr = std::shared_ptr<Errmsg>;
 
-	class Coltype : SysRoot
+	class Coltype : public SysRoot
 	{
 	public:
 		enum struct EType
@@ -234,7 +234,7 @@ namespace Sql1
 
 	using ColtypeSPtr = std::shared_ptr<Coltype>;
 
-	class Defval : SysRoot
+	class Defval : public SysRoot
 	{
 	public:
 		enum struct EType
@@ -316,7 +316,7 @@ namespace Sql1
 
 	using DefvalSPtr = std::shared_ptr<Defval>;
 
-	class Colopt : SysRoot
+	class Colopt : public SysRoot
 	{
 	public:
 		enum struct EType
@@ -413,7 +413,7 @@ namespace Sql1
 
 	using ColoptSPtr = std::shared_ptr<Colopt>;
 
-	class Coldef : SysRoot
+	class Coldef : public SysRoot
 	{
 	public:
 		explicit Coldef(const std::string& name, Coltype* coltype, std::vector<ColoptSPtr>&& colopts)
@@ -460,7 +460,7 @@ namespace Sql1
 
 	// ------------------------------------------------------------------------
 
-	class Refoption : SysRoot
+	class Refoption : public SysRoot
 	{
 	public:
 		enum class EType
@@ -558,7 +558,7 @@ namespace Sql1
 		return os;
 	}
 
-	class Tabcond : SysRoot
+	class Tabcond : public SysRoot
 	{
 	public:
 		enum class EType
@@ -619,7 +619,7 @@ namespace Sql1
 				os << " name=[" << mName << "]";
 			}
 
-			std::cout << " columns=[" << mColnames << "]";
+			os << " columns=[" << mColnames << "]";
 
 			if (! mReftabname.empty())
 			{
@@ -679,10 +679,19 @@ namespace Sql1
 
 	using TabcondSPtr = std::shared_ptr<Tabcond>;
 
-	class Table : SysRoot
+	class Stmt : public SysRoot
 	{
 	public:
-		explicit Table(const std::string& name,
+		virtual std::string convert() const = 0;
+		virtual std::vector<ErrmsgSPtr> checkSpannerSyntax() const { return std::vector<ErrmsgSPtr>(); }
+	};
+
+	using StmtSPtr = std::shared_ptr<Stmt>;
+
+	class CreateTable : public Stmt
+	{
+	public:
+		explicit CreateTable(const std::string& name,
 			std::vector<ColdefSPtr>&& coldefs, std::vector<TabcondSPtr>&& tabconds)
 			: mName{ name }, mColdefs{ std::move(coldefs) }, mTabconds{ std::move(tabconds) } { }
 
@@ -715,8 +724,8 @@ namespace Sql1
 			os << indent_manip::pop;
 		}
 
-		std::vector<ErrmsgSPtr> checkSpannerSyntax() const;
-		std::string convert() const;
+		std::string convert() const override;
+		std::vector<ErrmsgSPtr> checkSpannerSyntax() const override;
 
 	private:
 		std::string mName;

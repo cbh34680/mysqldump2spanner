@@ -14,19 +14,19 @@ namespace Sql1
 
 		explicit Driver(Context* arg_context) : context{ arg_context } { }
 
-		void error(std::string msg, const char* file, int line) const
+		void error(std::ostream& os, std::string msg, const char* file, int line) const
 		{
-			error(context->locat, msg, file, line);
+			error(os, context->locat, msg, file, line);
 		}
 
-		void error(const location& arg_loc, std::string msg, const char* file, int line) const
+		void error(std::ostream& os, const location& arg_loc, std::string msg, const char* file, int line) const
 		{
-			std::cout << EndL;
-			std::cout << "# FILE   : " << file << EndL;
-			std::cout << "# LINE   : " << line << EndL;
-			std::cout << "# SOURCE : " << arg_loc << EndL;
-			std::cout << "# MESSAGE: " << msg << EndL;
-			std::cout << EndL;
+			os << EndL;
+			os << "# FILE   : " << file << EndL;
+			os << "# LINE   : " << line << EndL;
+			os << "# SOURCE : " << arg_loc << EndL;
+			os << "# MESSAGE: " << msg << EndL;
+			os << EndL;
 		}
 	};
 }

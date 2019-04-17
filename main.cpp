@@ -18,7 +18,7 @@ void Sql1::Refoption::output(std::ostream& os) const
 	os << "on=[" << mType << "(" << mAction << ")]";
 }
 
-std::vector<Sql1::ErrmsgSPtr> Sql1::Table::checkSpannerSyntax() const
+std::vector<Sql1::ErrmsgSPtr> Sql1::CreateTable::checkSpannerSyntax() const
 {
 	std::vector<ErrmsgSPtr> errors;
 
@@ -378,7 +378,7 @@ std::string Sql1::Tabcond::convert2(const std::string& tabname) const
 	return std::move(ret);
 }
 
-std::string Sql1::Table::convert() const
+std::string Sql1::CreateTable::convert() const
 {
 	std::string ret{ "CREATE TABLE " };
 
@@ -495,12 +495,12 @@ int main(int argc, char** argv)
 
 	if (parse_rc)
 	{
-		std::cout << "- Parse error." << std::endl;
+		std::cerr << "- Parse error." << std::endl;
 
 		return 1;
 	}
 
-	std::cout << "- Parse success." << std::endl;
+	std::cerr << "- Parse success." << std::endl;
 
 	std::ios_base::sync_with_stdio(true);
 
