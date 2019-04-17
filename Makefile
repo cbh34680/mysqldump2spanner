@@ -21,7 +21,7 @@ CXXFLAGS := $(OPTIONS) -include std.hpp
 DEPENDS_0 = Makefile
 
 DEPENDS  = $(DEPENDS_0)
-DEPENDS += std.hpp comm.hpp context.hpp driver.hpp column.hpp
+DEPENDS += std.hpp comm.hpp driver.hpp ddl.hpp
 
 TARGET := mysqldump2spanner.exe
 
@@ -34,16 +34,19 @@ all: $(TARGET)
 #std.hpp.pch: std.hpp $(DEPENDS_0)
 #	$(CXX) $(OPTIONS) -x c++-header -o $@ $<
 
-parser.cc: parser.yy column.hpp $(DEPENDS)
+parser.cc: parser.yy ddl.hpp $(DEPENDS)
 	bison --report=all --report-file=report.out --output=$@ $<
 
 scanner.cc: scanner.ll scanner.hpp $(DEPENDS)
 	flex --outfile=$@ $<
 
+ddl.o: ddl.cpp $(DEPENDS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
 main.o: main.cpp $(DEPENDS)
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-$(TARGET): parser.o scanner.o main.o
+$(TARGET): parser.o scanner.o ddl.o main.o
 	@echo
 	@echo "*** link ***"
 	$(CXX) $(CXXFLAGS) -o $@ $^

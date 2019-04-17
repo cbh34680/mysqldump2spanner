@@ -113,5 +113,78 @@ namespace Sql1
 
 		return true;
 	}
+
+	class Errmsg : public SysRoot
+	{
+	public:
+		enum struct EType
+		{
+			INFO,
+			WARN,
+			FATAL,
+		};
+
+		explicit Errmsg(EType type, const std::string& text) : mType{ type }, mText{ text } { }
+
+		void output(std::ostream& os) const override
+		{
+			switch (mType)
+			{
+				case EType::INFO:
+				{
+					os << "I) " << mText;
+					break;
+				}
+				case EType::WARN:
+				{
+					os << "W) " << mText;
+					break;
+				}
+				case EType::FATAL:
+				{
+					os << "F) " << mText << " (*)";
+					break;
+				}
+			}
+
+			os << std::endl;
+		}
+
+		static Errmsg* info(const std::string& arg)
+		{
+			return new Errmsg{ EType::INFO, arg };
+		}
+
+		static Errmsg* warn(const std::string& arg)
+		{
+			return new Errmsg{ EType::WARN, arg };
+		}
+
+		static Errmsg* fatal(const std::string& arg)
+		{
+			return new Errmsg{ EType::FATAL, arg };
+		}
+
+		bool canIgnore() const
+		{
+			return mType == EType::FATAL ? false : true;
+		}
+
+	private:
+		EType mType;
+		std::string mText;
+	};
+
+	using ErrmsgSPtr = std::shared_ptr<Errmsg>;
+
+
+	class Stmt : public SysRoot
+	{
+	public:
+		virtual std::string convert() const = 0;
+		virtual std::vector<ErrmsgSPtr> checkSpannerSyntax() const { return std::vector<ErrmsgSPtr>(); }
+	};
+
+	using StmtSPtr = std::shared_ptr<Stmt>;
 }
 

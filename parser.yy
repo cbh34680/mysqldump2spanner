@@ -42,15 +42,12 @@
 	// MEMO : code requires (hh)
 
 	#include "comm.hpp"
-	#include "column.hpp"
+	#include "ddl.hpp"
 
 	namespace Sql1
 	{
 		class Scanner;
 		class Driver;
-
-		class Coltype;
-		class Coldef;
 	}
 }
 
@@ -67,7 +64,7 @@
 {
 	// MEMO : code (cc)
 
-	#include "impl.hpp"
+	#include "scanner.hpp"
 
 	#undef yylex
 	#define yylex				scanner_.Scan
@@ -178,16 +175,15 @@
 // ---------------------------------------------------------------------------
 
 %type
+	<bool>							if_exists
+	;
+
+%type
 	<int>							width
 	;
 
 %type
 	<std::string>					ident
-	;
-
-%type
-	<Stmt*>							stmt
-									ddl
 	;
 
 %type
@@ -211,6 +207,10 @@
 	;
 
 %type
+	<Stmt*>							ddl
+	;
+
+%type
 	<Refoption*>					refopt.or.empty
 	;
 
@@ -220,10 +220,6 @@
 
 %type
 	<Refoption::EAction>			refopt.action
-	;
-
-%type
-	<std::vector<StmtSPtr>>			stmt.list
 	;
 
 %type
@@ -257,13 +253,31 @@ start
 		}
 	| stmt.list[stmts]
 		{
-			bool fatal{ false };
+		}
+	;
 
-			for (const auto& stmt: $stmts)
+stmt.list
+	: stmt.list[orig] stmt
+		{
+		}
+	| stmt
+		{
+		}
+	;
+
+stmt
+	: ";"
+		{
+		}
+	| ddl ";"
+		{
+			if ($ddl)
 			{
-				stmt->output(std::cerr);
+				auto ddl = std::unique_ptr<Stmt>($ddl);
 
-				const auto errors = stmt->checkSpannerSyntax();
+				ddl->output(std::cerr);
+
+				const auto errors = ddl->checkSpannerSyntax();
 
 				if (! errors.empty())
 				{
@@ -271,64 +285,25 @@ start
 					{
 						if (! e->canIgnore())
 						{
-							fatal = true;
+							S1_ERROR("続行できない障害を検出しました");
 						}
 					}
 				}
+
+				std::cout << ddl->convert();
 			}
-
-			if (fatal)
-			{
-				S1_ERROR("続行できない障害を検出しました");
-			}
-
-			for (const auto& stmt: $stmts)
-			{
-				std::cout << stmt->convert();
-
-			}
-		}
-	;
-
-stmt.list
-	: stmt.list[orig] stmt
-		{
-			$$ = std::move($orig);
-
-			if ($stmt)
-			{
-				$$.emplace_back($stmt);
-			}
-		}
-	| stmt
-		{
-			if ($stmt)
-			{
-				$$.emplace_back($stmt);
-			}
-		}
-	;
-
-stmt
-	: ";"
-		{
-			$$ = nullptr;
-		}
-	| ddl[orig] ";"
-		{
-			$$ = $orig;
 		}
 	;
 
 ddl
-	: "create" "table" if_exists ident[tabname] "(" coldef.list[coldefs]
+	: "create" "table" ident[tabname] "(" coldef.list[coldefs]
 		tabcond.list.or.empty[tabconds] ")" tabopt.list.or.empty
 		{
 			$$ = new CreateTable{ $tabname, std::move($coldefs), std::move($tabconds) };
 		}
 	| "drop" "table" if_exists ident[tabname]
 		{
-			$$ = nullptr;
+			$$ = new DropTable{ $tabname, $if_exists };
 		}
 	| "lock" "tables" ident[tabname] "write"
 		{
@@ -343,9 +318,11 @@ ddl
 if_exists
 	: %empty
 		{
+			$$ = false;
 		}
 	| "if" "exists"
 		{
+			$$ = true;
 		}
 	;
 

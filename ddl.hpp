@@ -5,69 +5,6 @@
 
 namespace Sql1
 {
-	class Errmsg : public SysRoot
-	{
-	public:
-		enum struct EType
-		{
-			INFO,
-			WARN,
-			FATAL,
-		};
-
-		explicit Errmsg(EType type, const std::string& text) : mType{ type }, mText{ text } { }
-
-		void output(std::ostream& os) const override
-		{
-			switch (mType)
-			{
-				case EType::INFO:
-				{
-					os << "I) " << mText;
-					break;
-				}
-				case EType::WARN:
-				{
-					os << "W) " << mText;
-					break;
-				}
-				case EType::FATAL:
-				{
-					os << "F) " << mText << " (*)";
-					break;
-				}
-			}
-
-			os << std::endl;
-		}
-
-		static Errmsg* info(const std::string& arg)
-		{
-			return new Errmsg{ EType::INFO, arg };
-		}
-
-		static Errmsg* warn(const std::string& arg)
-		{
-			return new Errmsg{ EType::WARN, arg };
-		}
-
-		static Errmsg* fatal(const std::string& arg)
-		{
-			return new Errmsg{ EType::FATAL, arg };
-		}
-
-		bool canIgnore() const
-		{
-			return mType == EType::FATAL ? false : true;
-		}
-
-	private:
-		EType mType;
-		std::string mText;
-	};
-
-	using ErrmsgSPtr = std::shared_ptr<Errmsg>;
-
 	class Coltype : public SysRoot
 	{
 	public:
@@ -679,14 +616,38 @@ namespace Sql1
 
 	using TabcondSPtr = std::shared_ptr<Tabcond>;
 
-	class Stmt : public SysRoot
+	class DropTable : public Stmt
 	{
 	public:
-		virtual std::string convert() const = 0;
-		virtual std::vector<ErrmsgSPtr> checkSpannerSyntax() const { return std::vector<ErrmsgSPtr>(); }
-	};
+		explicit DropTable(const std::string& name, bool if_exists)
+			: mName{ name }, mIfExists{ if_exists } { }
 
-	using StmtSPtr = std::shared_ptr<Stmt>;
+		void output(std::ostream& os) const override
+		{
+			os << "ddl-type=[drop] table=[" << mName << "]" << std::endl << std::endl;
+
+			os << indent_manip::push;
+
+				const auto errors = checkSpannerSyntax();
+
+				if (! errors.empty())
+				{
+					os << "* CONVERT MESSAGE" << std::endl;
+					os << indent_manip::push;
+					os << errors << std::endl;
+					os << indent_manip::pop;
+				}
+
+			os << indent_manip::pop;
+		}
+
+		std::string convert() const override;
+		std::vector<ErrmsgSPtr> checkSpannerSyntax() const override;
+
+	private:
+		std::string mName;
+		bool mIfExists;
+	};
 
 	class CreateTable : public Stmt
 	{
@@ -697,7 +658,7 @@ namespace Sql1
 
 		void output(std::ostream& os) const override
 		{
-			os << "TABLE=" << mName << std::endl << std::endl;
+			os << "ddl-type=[create] table=[" << mName << "]" << std::endl << std::endl;
 
 			os << indent_manip::push;
 
