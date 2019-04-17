@@ -389,7 +389,7 @@ values.list
 packed.value.list
 	: "(" value.list[values] ")"
 		{
-			if ((curr_values % 2) == 0)
+			if ((curr_values % 1000) == 0)
 			{
 				if (curr_values)
 				{
