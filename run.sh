@@ -37,15 +37,14 @@ echo
 cat ${insql} | ./${exefile} "$@" > ${outsql}
 rc=${PIPESTATUS[1]}
 
-echo
-echo "# === output ===>>>"
-cat ${outsql}
-echo "# === output ===<<<"
-
-if [ -f copy.sh ]
+if [[ $rc = 0 ]]
 then
-  sh copy.sh
-  [ $? -ne 0 ] && exit
+  cat << EOS
+
+# === output ===>>>
+$(cat ${outsql})
+# === output ===<<<
+EOS
 fi
 
 echo

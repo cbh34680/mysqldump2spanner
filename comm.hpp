@@ -33,6 +33,8 @@
 
 namespace Sql1
 {
+	using Strings = std::vector<std::string>;
+
 	class BadTypeError : public std::runtime_error { public: using runtime_error::runtime_error; };
 
 	class SysRoot
@@ -56,7 +58,7 @@ namespace Sql1
 
 	// ex.) const vector<string>& arg
 	//
-	inline std::string join_strs(const std::vector<std::string>& strs, const char* delim = "")
+	inline std::string join_strs(const Strings& strs, const char* delim = "")
 	{
 		if (strs.empty())
 		{
@@ -72,7 +74,7 @@ namespace Sql1
 		return s;
 	}
 
-	inline std::ostream& operator<<(std::ostream& os, const std::vector<std::string>& arg)
+	inline std::ostream& operator<<(std::ostream& os, const Strings& arg)
 	{
 /*
 		for (const auto& e: arg)
@@ -181,7 +183,7 @@ namespace Sql1
 	class Stmt : public SysRoot
 	{
 	public:
-		virtual std::string convert() const = 0;
+		virtual std::string convert() const { return std::move(std::string()); }
 		virtual std::vector<ErrmsgSPtr> checkSpannerSyntax() const { return std::vector<ErrmsgSPtr>(); }
 	};
 

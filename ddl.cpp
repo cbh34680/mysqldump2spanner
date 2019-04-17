@@ -411,7 +411,7 @@ std::string Sql1::CreateTable::convert() const
 
 	// --- PRIMARY KEY, INTERLEAVE IN PARENT
 
-	std::vector<std::string> strs;
+	Strings strs;
 
 	for (const auto& tabcond: mTabconds)
 	{

@@ -43,6 +43,7 @@
 
 	#include "comm.hpp"
 	#include "ddl.hpp"
+	#include "dml.hpp"
 
 	namespace Sql1
 	{
@@ -76,6 +77,9 @@
 	#define S1_ASSERT(a, b)		if (! (a)) { S1_ERROR((b)); }
 	#define S1_SWAP(a, b)		if (! (b)) { S1_ERROR("swap source is null"); } std::swap((a), (b))
 
+	static std::map<std::string, Sql1::Strings> colnames_map;
+	static std::shared_ptr<Sql1::Insert> curr_insert;
+	static int curr_values = 0;
 }
 
 %initial-action
@@ -108,6 +112,7 @@
 	WRITE				"write"
 
 	INSERT				"insert"
+	INTO				"into"
 	VALUES				"values"
 	UPDATE				"update"
 	DELETE				"delete"
@@ -184,6 +189,7 @@
 
 %type
 	<std::string>					ident
+									value
 	;
 
 %type
@@ -207,7 +213,7 @@
 	;
 
 %type
-	<Stmt*>							ddl
+	<StmtSPtr>						ddl
 	;
 
 %type
@@ -236,7 +242,9 @@
 									tabcond.list
 
 %type
-	<std::vector<std::string>>		ident.list
+	<Strings>						ident.list
+									colnames.or.empty
+									value.list
 	;
 
 // ---------------------------------------------------------------------------
@@ -273,11 +281,9 @@ stmt
 		{
 			if ($ddl)
 			{
-				auto ddl = std::unique_ptr<Stmt>($ddl);
+				$ddl->output(std::cerr);
 
-				ddl->output(std::cerr);
-
-				const auto errors = ddl->checkSpannerSyntax();
+				const auto errors = $ddl->checkSpannerSyntax();
 
 				if (! errors.empty())
 				{
@@ -290,8 +296,16 @@ stmt
 					}
 				}
 
-				std::cout << ddl->convert();
+				const std::string spn_ddl = $ddl->convert();
+
+				if (! spn_ddl.empty())
+				{
+					std::cout << spn_ddl;
+				}
 			}
+		}
+	| dml ";"
+		{
 		}
 	;
 
@@ -299,19 +313,133 @@ ddl
 	: "create" "table" ident[tabname] "(" coldef.list[coldefs]
 		tabcond.list.or.empty[tabconds] ")" tabopt.list.or.empty
 		{
-			$$ = new CreateTable{ $tabname, std::move($coldefs), std::move($tabconds) };
+			assert(colnames_map.find($tabname) == colnames_map.end());
+
+			auto* o = new CreateTable{ $tabname, std::move($coldefs), std::move($tabconds) };
+
+			colnames_map[$tabname] = std::move(o->getColnames());
+
+			$$.reset(o);
 		}
 	| "drop" "table" if_exists ident[tabname]
 		{
-			$$ = new DropTable{ $tabname, $if_exists };
+			$$.reset(new DropTable{ $tabname, $if_exists });
 		}
 	| "lock" "tables" ident[tabname] "write"
 		{
-			$$ = nullptr;
+			$$.reset(new IgnoreDdl{ std::string("LOCK TABLE ") + $tabname });
 		}
 	| "unlock" "tables"
 		{
-			$$ = nullptr;
+			$$.reset(new IgnoreDdl{ std::string("UNLOCK TABLES") });
+		}
+	;
+
+dml
+	: "insert" "into" ident[tabname] colnames.or.empty[colnames] "values"
+		{
+			Strings colnames{ std::move($colnames) };
+
+			if (colnames.empty())
+			{
+				if (colnames_map.find($tabname) == colnames_map.end())
+				{
+					S1_ERROR(std::string("[") + $tabname + "]: 認識できないテーブル名です");
+				}
+
+				colnames = colnames_map.at($tabname);
+			}
+
+			curr_insert = std::unique_ptr<Insert>(new Insert{ $tabname, std::move(colnames) });
+			curr_values = 0;
+
+			curr_insert->output(std::cerr);
+
+			std::cerr << std::endl;
+		}
+	  values.list
+		{
+			std::cerr << indent_manip::push;
+			std::cerr << "! " << curr_values << " record writed." << std::endl << std::endl;
+			std::cerr << indent_manip::pop;
+
+			std::cout << "\n;\n";
+		}
+	;
+
+colnames.or.empty
+	: %empty
+		{
+		}
+	| "(" ident.list[orig] ")"
+		{
+			$$ = std::move($orig);
+		}
+	;
+
+values.list
+	: values.list "," packed.value.list
+		{
+		}
+	| packed.value.list
+		{
+		}
+	;
+
+packed.value.list
+	: "(" value.list[values] ")"
+		{
+			if ((curr_values % 2) == 0)
+			{
+				if (curr_values)
+				{
+					std::cout << "\n;\n";
+				}
+
+				// "insert into (...) values "
+				//
+				std::cout << curr_insert->convert() << " VALUES ";
+			}
+			else
+			{
+				std::cout << ",";
+			}
+
+			std::cout << "(" << join_strs($values, ",") << ")";
+
+			++curr_values;
+		}
+	;
+
+value.list
+	: value.list[orig] "," value
+		{
+			$$ = std::move($orig);
+
+			$$.push_back(std::move($value));
+		}
+	| value
+		{
+			$$.push_back(std::move($value));
+		} 
+	;
+
+value
+	: NUL
+		{
+			$$ = "NULL";
+		}
+	| STRING_LITERAL[orig]
+		{
+			$$ = std::move(std::string("'") + $orig + "'");
+		}
+	| INT_LITERAL[orig]
+		{
+			$$ = std::move(std::to_string($orig));
+		}
+	| DOUBLE_LITERAL[orig]
+		{
+			$$ = std::move(std::to_string($orig));
 		}
 	;
 

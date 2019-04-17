@@ -1,8 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <vector>
-
 namespace Sql1
 {
 	class Coltype : public SysRoot
@@ -506,12 +503,12 @@ namespace Sql1
 			KEY,
 		};
 
-		explicit Tabcond(EType type, std::vector<std::string>&& colnames,
+		explicit Tabcond(EType type, Strings&& colnames,
 			const std::string& name=std::string())
 			: mType{ type }, mColnames{ std::move(colnames) }, mName{ name } { }
 
-		explicit Tabcond(EType type, std::vector<std::string>&& colnames,
-			const std::string& name, const std::string& reftabname, std::vector<std::string>&& refcolnames,
+		explicit Tabcond(EType type, Strings&& colnames,
+			const std::string& name, const std::string& reftabname, Strings&& refcolnames,
 			Refoption* refoption=nullptr)
 			: mType{ type }, mColnames{ std::move(colnames) }, mName{ name },
 			  mReftabname{ reftabname }, mRefcolnames{ std::move(refcolnames) },
@@ -577,7 +574,7 @@ namespace Sql1
 			return mType;
 		}
 
-		const std::vector<std::string>& getColnames() const
+		const Strings& getColnames() const
 		{
 			return mColnames;
 		}
@@ -592,7 +589,7 @@ namespace Sql1
 			return mReftabname;
 		}
 
-		const std::vector<std::string>& getRefcolnames() const
+		const Strings& getRefcolnames() const
 		{
 			return mRefcolnames;
 		}
@@ -607,14 +604,28 @@ namespace Sql1
 
 	private:
 		EType mType;
-		std::vector<std::string> mColnames;
+		Strings mColnames;
 		std::string mName;
 		std::string mReftabname;
-		std::vector<std::string> mRefcolnames;
+		Strings mRefcolnames;
 		RefoptionSPtr mRefoption;
 	};
 
 	using TabcondSPtr = std::shared_ptr<Tabcond>;
+
+	class IgnoreDdl : public Stmt
+	{
+	public:
+		explicit IgnoreDdl(const std::string& text) : mText{ text } { }
+
+		void output(std::ostream& os) const override
+		{
+			os << "ddl-type=[ignore] text=[" << mText << "]" << std::endl << std::endl;
+		}
+
+	private:
+		std::string mText;
+	};
 
 	class DropTable : public Stmt
 	{
@@ -683,6 +694,18 @@ namespace Sql1
 				}
 
 			os << indent_manip::pop;
+		}
+
+		Strings getColnames() const
+		{
+			Strings ret;
+
+			for (const auto& coldef: mColdefs)
+			{
+				ret.push_back(coldef->getName());
+			}
+
+			return std::move(ret);
 		}
 
 		std::string convert() const override;

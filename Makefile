@@ -21,7 +21,7 @@ CXXFLAGS := $(OPTIONS) -include std.hpp
 DEPENDS_0 = Makefile
 
 DEPENDS  = $(DEPENDS_0)
-DEPENDS += std.hpp comm.hpp driver.hpp ddl.hpp
+DEPENDS += std.hpp comm.hpp driver.hpp ddl.hpp dml.hpp
 
 TARGET := mysqldump2spanner.exe
 

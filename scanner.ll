@@ -95,6 +95,11 @@ DQ			\"
 
 						yy_pop_state();
 					}
+	\t				{
+						drv_loc.step();
+
+						temp_str += "\\t";
+					}
 	\\.				{
 						drv_loc.step();
 
@@ -173,6 +178,7 @@ DQ			\"
 	"WRITE"					{ return Parser::make_WRITE(drv_loc); }
 
 	"INSERT"				{ return Parser::make_INSERT(drv_loc); }
+	"INTO"					{ return Parser::make_INTO(drv_loc); }
 	"VALUES"				{ return Parser::make_VALUES(drv_loc); }
 	"UPDATE"				{ return Parser::make_UPDATE(drv_loc); }
 	"DELETE"				{ return Parser::make_DELETE(drv_loc); }
