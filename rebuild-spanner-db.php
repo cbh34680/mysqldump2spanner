@@ -26,8 +26,6 @@ class GotoExit extends Exception { }
 
 function init_database($instanceId, $databaseId)
 {
-	echo "${instanceId}, ${databaseId}" . PHP_EOL;
-
 	$client = new SpannerClient();
 
 	$inst = $client->instance($instanceId);
