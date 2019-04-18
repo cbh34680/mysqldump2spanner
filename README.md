@@ -1,7 +1,7 @@
 # mysqldump2spanner
 
 ## env
-```
+```bash
 [user@host]$ uname -a
 Linux Host1 3.10.0-957.10.1.el7.x86_64 #1 SMP Mon Mar 18 15:06:45 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
 $ cat /etc/redhat-release
@@ -15,7 +15,8 @@ flex-2.5.37-6.el7.x86_64
 ```
 
 ## build
-```
+
+```bash
 [user@host]$ make
 bison --report=all --report-file=report.out --output=parser.cc parser.yy
 g++ -std=c++11 -Wall -Wextra -g -O0 -pipe -include std.hpp   -c -o parser.o parser.cc
@@ -29,7 +30,8 @@ g++ -std=c++11 -Wall -Wextra -g -O0 -pipe -include std.hpp -o mysqldump2spanner.
 ```
 
 ## usage (check)
-```
+
+```bash
 [user@host]$ MYSQL_PWD=migtest_pass mysql -umigtest_user -Dmigtest -e "show create table tab1\G"
 *************************** 1. row ***************************
        Table: tab1
@@ -81,7 +83,8 @@ ddl-type=[ignore] text=[UNLOCK TABLES]
 ```
 
 ## usage (convert)
-```
+
+```bash
 [user@host]$ MYSQL_PWD=migtest_pass mysqldump -umigtest_user migtest | ./mysqldump2spanner.exe 2> /dev/null
 DROP TABLE tab1
 ;
