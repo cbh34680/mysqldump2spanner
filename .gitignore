@@ -50,5 +50,6 @@
 /*.hh
 /*.cc
 
-/copy.sh
+/composer.phar
+/google-cloud-php/
 

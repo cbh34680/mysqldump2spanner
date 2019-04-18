@@ -35,6 +35,13 @@ namespace Sql1
 {
 	using Strings = std::vector<std::string>;
 
+	struct MainConfig
+	{
+		bool print_version = false;
+		bool print_help = false;
+		bool no_drop_table = false;
+	};
+
 	class BadTypeError : public std::runtime_error { public: using runtime_error::runtime_error; };
 
 	class SysRoot

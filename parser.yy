@@ -326,7 +326,14 @@ ddl
 		}
 	| "drop" "table" if_exists ident[tabname]
 		{
-			$$.reset(new DropTable{ $tabname, $if_exists });
+			if (drv_ctx->config->no_drop_table)
+			{
+				$$ = nullptr;
+			}
+			else
+			{
+				$$.reset(new DropTable{ $tabname, $if_exists });
+			}
 		}
 	| "lock" "tables" ident[tabname] "write"
 		{

@@ -11,10 +11,11 @@ namespace Sql1
 	{
 	public:
 		std::string filename;
+		const MainConfig* config;
 		location locat;
 
-		explicit Context(const std::string& arg_filename)
-			: filename{ arg_filename }, locat{ &filename } { }
+		explicit Context(const std::string& arg_filename, const MainConfig* arg_config)
+			: filename{ arg_filename }, config{ arg_config }, locat{ &filename } { }
 	};
 
 	class Driver

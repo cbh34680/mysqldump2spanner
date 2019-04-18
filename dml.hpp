@@ -27,8 +27,9 @@ namespace Sql1
 
 		std::string convert() const override
 		{
-			std::string ret{ "INSERT INTO (" };
+			std::string ret{ "INSERT INTO " };
 
+			ret += mName + " (";
 			ret += join_strs(mColnames, ",");
 			ret += ")";
 
