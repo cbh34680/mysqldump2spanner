@@ -320,7 +320,7 @@ ddl
 
 			auto o = CreateTableSPtr{ new CreateTable{ $tabname, std::move($coldefs), std::move($tabconds) } };
 
-			create_tables[$tabname] = std::move(o);
+			create_tables[$tabname] = o;
 
 			$$ = o;
 		}
