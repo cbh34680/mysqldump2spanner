@@ -61,7 +61,7 @@ function exec_sql($db, $sql)
 {
 	if (preg_match('/^[[:space:]]*(create|drop|alter)/i', $sql))
 	{
-		echo 'Waiting for operation to complete... ';
+		echo 'Waiting for DDL to complete... ';
 
 		$operation = $db->updateDdl($sql);
 		$operation->pollUntilComplete();
