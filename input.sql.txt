@@ -27,6 +27,7 @@ CREATE TABLE `tab1` (
   `data` varchar(100) NOT NULL,
   `num` int(11) DEFAULT NULL,
   `rate` double DEFAULT NULL,
+  `flag` tinyint(1) DEFAULT NULL,
   `dtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`skey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -38,7 +39,7 @@ CREATE TABLE `tab1` (
 
 LOCK TABLES `tab1` WRITE;
 /*!40000 ALTER TABLE `tab1` DISABLE KEYS */;
-INSERT INTO `tab1` (`skey`, `data`, `num`, `rate`, `dtime`) VALUES ('A001','abc \' def 	 hij \n klm',NULL,12097.664,'2019-04-17 23:06:13'),('A002','ABC\"',1,12097.664,'2019-04-17 23:06:13'),('A003','a\"',55,6.6,'2019-04-18 04:16:18');
+INSERT INTO `tab1` (`skey`, `data`, `num`, `rate`, `flag`, `dtime`) VALUES ('A001','abc \' def 	 hij \n klm',NULL,12097.664,0,'2019-04-17 23:06:13'),('A002','ABC\"',1,12097.664,0,'2019-04-17 23:06:13'),('A003','a\"',55,6.6,0,'2019-04-18 04:16:18');
 /*!40000 ALTER TABLE `tab1` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -51,4 +52,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-18  4:16:28
+-- Dump completed on 2019-04-18 19:53:09

@@ -77,9 +77,12 @@
 	#define S1_ASSERT(a, b)		if (! (a)) { S1_ERROR((b)); }
 	#define S1_SWAP(a, b)		if (! (b)) { S1_ERROR("swap source is null"); } std::swap((a), (b))
 
-	static std::map<std::string, Sql1::Strings> colnames_map;
-	static std::shared_ptr<Sql1::Insert> curr_insert;
-	static int curr_values = 0;
+	static std::map<std::string, Sql1::CreateTableSPtr> create_tables;
+
+	static Sql1::CreateTableSPtr curr_table;
+	static Sql1::InsertSPtr curr_insert;
+	static int value_pos = 0;
+	static int write_record = 0;
 }
 
 %initial-action
@@ -313,13 +316,13 @@ ddl
 	: "create" "table" ident[tabname] "(" coldef.list[coldefs]
 		tabcond.list.or.empty[tabconds] ")" tabopt.list.or.empty
 		{
-			assert(colnames_map.find($tabname) == colnames_map.end());
+			assert(create_tables.find($tabname) == create_tables.end());
 
-			auto* o = new CreateTable{ $tabname, std::move($coldefs), std::move($tabconds) };
+			auto o = CreateTableSPtr{ new CreateTable{ $tabname, std::move($coldefs), std::move($tabconds) } };
 
-			colnames_map[$tabname] = std::move(o->getColnames());
+			create_tables[$tabname] = std::move(o);
 
-			$$.reset(o);
+			$$ = o;
 		}
 	| "drop" "table" if_exists ident[tabname]
 		{
@@ -338,20 +341,26 @@ ddl
 dml
 	: "insert" "into" ident[tabname] colnames.or.empty[colnames] "values"
 		{
+			if (create_tables.find($tabname) == create_tables.end())
+			{
+				S1_ERROR(std::string("[") + $tabname + "]: 認識できないテーブル名です");
+			}
+
+			curr_table = create_tables.at($tabname);
+
+			// 列名の解決
+			//
 			Strings colnames{ std::move($colnames) };
 
 			if (colnames.empty())
 			{
-				if (colnames_map.find($tabname) == colnames_map.end())
-				{
-					S1_ERROR(std::string("[") + $tabname + "]: 認識できないテーブル名です");
-				}
-
-				colnames = colnames_map.at($tabname);
+				colnames = curr_table->getColnames();
 			}
 
+			// VALUES 出力の初期化
+			//
 			curr_insert = std::unique_ptr<Insert>(new Insert{ $tabname, std::move(colnames) });
-			curr_values = 0;
+			write_record = 0;
 
 			curr_insert->output(std::cerr);
 
@@ -360,7 +369,7 @@ dml
 	  values.list
 		{
 			std::cerr << indent_manip::push;
-			std::cerr << "! " << curr_values << " record writed." << std::endl << std::endl;
+			std::cerr << "! " << write_record << " record writed." << std::endl << std::endl;
 			std::cerr << indent_manip::pop;
 
 			std::cout << "\n;\n";
@@ -387,11 +396,17 @@ values.list
 	;
 
 packed.value.list
-	: "(" value.list[values] ")"
+	:	{
+			value_pos = 0;
+		}
+	  "(" value.list[values] ")"
 		{
-			if ((curr_values % 1000) == 0)
+			if ((write_record % 1000) == 0)
 			{
-				if (curr_values)
+				// 一定数ごとに "INSERT INTO (...) VALUES" を挿入する
+				//
+
+				if (write_record)
 				{
 					std::cout << "\n;\n";
 				}
@@ -407,7 +422,7 @@ packed.value.list
 
 			std::cout << "(" << join_strs($values, ",") << ")";
 
-			++curr_values;
+			++write_record;
 		}
 	;
 
@@ -417,10 +432,14 @@ value.list
 			$$ = std::move($orig);
 
 			$$.push_back(std::move($value));
+
+			++value_pos;
 		}
 	| value
 		{
 			$$.push_back(std::move($value));
+
+			++value_pos;
 		} 
 	;
 
@@ -435,7 +454,30 @@ value
 		}
 	| INT_LITERAL[orig]
 		{
-			$$ = std::move(std::to_string($orig));
+			const auto& coltype = curr_table->getColdef(value_pos)->getColtype();
+
+			if (coltype->getType() == Coltype::EType::TINYINT)
+			{
+				if (coltype->getWidth() == 1)
+				{
+					// Spanner BOOL に変換
+					//
+
+					if ($orig)
+					{
+						$$ = "TRUE";
+					}
+					else
+					{
+						$$ = "FALSE";
+					}
+				}
+			}
+
+			if ($$.empty())
+			{
+				$$ = std::move(std::to_string($orig));
+			}
 		}
 	| DOUBLE_LITERAL[orig]
 		{

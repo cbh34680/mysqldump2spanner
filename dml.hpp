@@ -39,5 +39,7 @@ namespace Sql1
 		std::string mName;
 		Strings mColnames;
 	};
+
+	using InsertSPtr = std::shared_ptr<Insert>;
 }
 

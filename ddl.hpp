@@ -33,6 +33,11 @@ namespace Sql1
 			return mType;
 		}
 
+		int getWidth() const
+		{
+			return getWidthM();
+		}
+
 		int getWidthM() const
 		{
 			return mWidthM;
@@ -708,6 +713,13 @@ namespace Sql1
 			return std::move(ret);
 		}
 
+		const ColdefSPtr& getColdef(int n) const
+		{
+			assert(n < static_cast<decltype(n)>(mColdefs.size()));
+
+			return mColdefs.at(n);
+		}
+
 		std::string convert() const override;
 		std::vector<ErrmsgSPtr> checkSpannerSyntax() const override;
 
@@ -716,5 +728,7 @@ namespace Sql1
 		std::vector<ColdefSPtr> mColdefs;
 		std::vector<TabcondSPtr> mTabconds;
 	};
+
+	using CreateTableSPtr = std::shared_ptr<CreateTable>;
 }
 
