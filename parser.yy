@@ -823,6 +823,10 @@ tabopt
 	| "comment" "=" STRING_LITERAL
 		{
 		}
+	| error ";"
+		{
+			yyerrok;
+		}
 	;
 
 %%
