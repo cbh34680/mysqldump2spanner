@@ -35,7 +35,7 @@ all: $(TARGET)
 #	$(CXX) $(OPTIONS) -x c++-header -o $@ $<
 
 parser.cc: parser.yy ddl.hpp $(DEPENDS)
-	bison --report=all --report-file=report.out --output=$@ $<
+	bison --report=all --report-file=bison-report.out --output=$@ $<
 
 scanner.cc: scanner.ll scanner.hpp $(DEPENDS)
 	flex --outfile=$@ $<

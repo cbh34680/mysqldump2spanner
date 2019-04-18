@@ -1,12 +1,15 @@
 <?php
 /*
- * cat input.sql.txt | ./mysqldump2spanner.exe -D > output-no-drop.sql.txt
- * php rebuild-spanner-db.php [spanner instance id] [spanner database id] output-no-drop.sql.txt
+ * usage
+ *
+	> export GOOGLE_APPLICATION_CREDENTIALS=/path/to/your-gcp-service-account.json
+	> cat mysql-dump.sql | ./mysqldump2spanner.exe -D > spanner-input.sql
+	> php rebuild-spanner-db.php [your spanner instance id] [your spanner database id] spanner-input.sql
  *
  */
 
 /*
- * need
+ * prepare library
  *
 	> curl -sS https://getcomposer.org/installer | php
 	> git clone https://github.com/googleapis/google-cloud-php.git

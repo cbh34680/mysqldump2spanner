@@ -1,5 +1,3 @@
-DROP TABLE tab1 
-;
 CREATE TABLE tab1 (
   skey STRING(10) NOT NULL,
   data STRING(100) NOT NULL,
