@@ -44,16 +44,7 @@ static int parse_file(const char* arg_filename, const Sql1::MainConfig& config)
 	//context.debug_pos = true;
 	parser.set_debug_level(0);
 
-	const int rc = parser.parse();
-
-/*
-	std::cout << std::endl;
-	std::cout << "-- " << __FILE__ << "(" << __LINE__ << ") " << __func__ << " -->" << std::endl;
-	std::cout << context;
-	std::cout << "-- " << __FILE__ << "(" << __LINE__ << ") " << __func__ << " --<" << std::endl;
-*/
-
-	return rc;
+	return parser.parse();
 }
 
 #include <unistd.h>
@@ -64,7 +55,7 @@ bool parse_args(int argc, char** argv, Sql1::MainConfig& config)
 
 	int optc;
 
-	while ((optc = getopt(argc, argv, "vhD")) != -1)
+	while ((optc = getopt(argc, argv, "vhDi:")) != -1)
 	{
 		switch (optc)
 		{
@@ -77,6 +68,30 @@ bool parse_args(int argc, char** argv, Sql1::MainConfig& config)
 			case 'h':
 			{
 				config.print_help = true;
+
+				break;
+			}
+			case 'i':
+			{
+				char* e = nullptr;
+
+				unsigned long int ul = strtoul(optarg, &e, 0);
+
+				if (*e)
+				{
+					std::cerr << "ERROR: " << e << std::endl;
+
+					ret = false;
+				}
+
+				if (ul > 10000UL)		// hard limit
+				{
+					config.insert_limit = 10000UL;
+				}
+				else
+				{
+					config.insert_limit = ul;
+				}
 
 				break;
 			}
@@ -94,6 +109,11 @@ bool parse_args(int argc, char** argv, Sql1::MainConfig& config)
 
 				break;
 			}
+		}
+
+		if (! ret)
+		{
+			break;
 		}
 	}
 
@@ -124,6 +144,7 @@ int main(int argc, char** argv)
 
 		std::cerr << "\t" << "-h" << "\t" << "この使い方を表示して終了する" << std::endl;
 		std::cerr << "\t" << "-v" << "\t" << "バージョン情報を表示して終了する" << std::endl;
+		std::cerr << "\t" << "-i num" << "\t" << "INSERT 時の VALUE の数を制限 (デフォルト 1000, 最大 10000)" << std::endl;
 		std::cerr << "\t" << "-D" << "\t" << "DROP TABLE を生成しません" << std::endl;
 
 		return 0;

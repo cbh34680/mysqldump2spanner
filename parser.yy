@@ -408,7 +408,7 @@ packed.value.list
 		}
 	  "(" value.list[values] ")"
 		{
-			if ((write_record % 1000) == 0)
+			if ((write_record % drv_ctx->config->insert_limit) == 0)
 			{
 				// 一定数ごとに "INSERT INTO (...) VALUES" を挿入する
 				//

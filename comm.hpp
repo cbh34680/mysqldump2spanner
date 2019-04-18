@@ -39,6 +39,7 @@ namespace Sql1
 	{
 		bool print_version = false;
 		bool print_help = false;
+		unsigned long int insert_limit = 1000UL;
 		bool no_drop_table = false;
 	};
 
