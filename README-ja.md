@@ -1,6 +1,6 @@
 # mysqldump2spanner
 
-A tool to convert the contents output by MySQL's mysqldump command into Google Spanner format
+MySQL の mysqldump コマンドで出力した内容を Google Spanner の形式に変換するツール  
 
 
 ## env
