@@ -110,3 +110,17 @@ INSERT INTO (skey,data,num,rate,flag,dtime) VALUES ('A001','abc \' def \t hij \n
 ;
 ```
 
+## impor (additional sample)
+
+```
+[user@host]$ MYSQL_PWD=migtest_pass mysqldump -umigtest_user migtest | ./mysqldump2spanner.exe -D > output.sql.txt 2> /dev/null
+[user@host]$ php rebuild-spanner-db.php your-spanner-instance your-spanner-database output.sql.txt
+Do you really want to drop the 'your-spanner-database' database [y/N] y
+Database has been deleted.
+Waiting for the database to be created... done.
+Waiting for DDL to complete... done.
+Execute DML... 3 row
+
+all done.
+```
+
