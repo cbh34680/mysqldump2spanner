@@ -239,7 +239,7 @@ namespace Sql1
 				}
  				case EType::STRING:
 				{
-					return std::string("'") + mValue + "'";
+					return S_("'") + mValue + "'";
 				}
 				default:
 					break;

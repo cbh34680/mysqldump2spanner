@@ -142,10 +142,14 @@ int main(int argc, char** argv)
 	{
 		std::cerr << "Usage: " << argv[0] << " [OPTIONS] < [FILE]" << std::endl << std::endl;
 
-		std::cerr << "\t" << "-h" << "\t" << "この使い方を表示して終了する" << std::endl;
-		std::cerr << "\t" << "-v" << "\t" << "バージョン情報を表示して終了する" << std::endl;
-		std::cerr << "\t" << "-i num" << "\t" << "INSERT 時の VALUE の数を制限 (デフォルト 1000, 最大 10000)" << std::endl;
-		std::cerr << "\t" << "-D" << "\t" << "DROP TABLE を生成しません" << std::endl;
+		std::cerr << "\t" << "-h" << "\t" << T_("display this help and exit") << std::endl;
+
+		std::cerr << "\t" << "-v" << "\t" << T_("output version information and exit") << std::endl;
+
+		std::cerr << "\t" << "-i num" << "\t" << T_("limit the number of VALUE at insert")
+													<< " (default 1000, max 10000)" << std::endl;
+
+		std::cerr << "\t" << "-D" << "\t" << T_("Do not generate 'DROP TABLE'") << std::endl;
 
 		return 0;
 	}

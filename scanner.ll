@@ -241,7 +241,7 @@ DQ			\"
 								drv_loc.step();
 							}
 	.						{
-								S1_FLEX_WARN(std::string("invalid character [") + YYText() + "]");
+								S1_FLEX_WARN(S_("invalid character [") + YYText() + "]");
 							}
 }
 

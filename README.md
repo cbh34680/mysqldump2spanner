@@ -58,7 +58,7 @@ Create Table: CREATE TABLE `tab1` (
 ddl-type=[drop] table=[tab1]
 
         * CONVERT MESSAGE
-                W) IF EXISTS は無視されます
+                W) 'IF EXISTS' is ignored
 
 ddl-type=[create] table=[tab1]
 
@@ -74,8 +74,8 @@ ddl-type=[create] table=[tab1]
                 type=[primary key] columns=[skey]
 
         * CONVERT MESSAGE
-                I) column=[flag]: BOOL に変換されます
-                W) column=[dtime]: DEFAULT(CURRENT_TIMESTAMP) は無視されます
+                I) column=[flag]: Converted to BOOL
+                W) column=[dtime]: DEFAULT(CURRENT_TIMESTAMP) is ignored
 
 ddl-type=[ignore] text=[LOCK TABLE tab1]
 

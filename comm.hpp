@@ -31,6 +31,9 @@
 
 #define EndL			'\n'
 
+#define T_(a)			(a)
+#define S_(a)			std::string((a))
+
 namespace Sql1
 {
 	using Strings = std::vector<std::string>;

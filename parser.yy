@@ -337,11 +337,11 @@ ddl
 		}
 	| "lock" "tables" ident[tabname] "write"
 		{
-			$$.reset(new IgnoreDdl{ std::string("LOCK TABLE ") + $tabname });
+			$$.reset(new IgnoreDdl{ S_("LOCK TABLE ") + $tabname });
 		}
 	| "unlock" "tables"
 		{
-			$$.reset(new IgnoreDdl{ std::string("UNLOCK TABLES") });
+			$$.reset(new IgnoreDdl{ S_("UNLOCK TABLES") });
 		}
 	;
 
@@ -350,7 +350,7 @@ dml
 		{
 			if (create_tables.find($tabname) == create_tables.end())
 			{
-				S1_ERROR(std::string("[") + $tabname + "]: 認識できないテーブル名です");
+				S1_ERROR(S_("[") + $tabname + "]: 認識できないテーブル名です");
 			}
 
 			curr_table = create_tables.at($tabname);
@@ -457,7 +457,7 @@ value
 		}
 	| STRING_LITERAL[orig]
 		{
-			$$ = std::move(std::string("'") + $orig + "'");
+			$$ = std::move(S_("'") + $orig + "'");
 		}
 	| INT_LITERAL[orig]
 		{

@@ -13,12 +13,12 @@ std::vector<Sql1::ErrmsgSPtr> Sql1::DropTable::checkSpannerSyntax() const
 
 	if (! is_allowed_name(mName))
 	{
-		errors.emplace_back(Errmsg::fatal(std::string("table=[") + mName + "] 規則違反の名前です"));
+		errors.emplace_back(Errmsg::fatal(S_("table=[") + mName + "] " + T_("Name violates the rules")));
 	}
 
 	if (mIfExists)
 	{
-		errors.emplace_back(Errmsg::warn("IF EXISTS は無視されます"));
+		errors.emplace_back(Errmsg::warn(S_("'IF EXISTS' ") + T_("is ignored")));
 	}
 
 	return std::move(errors);
@@ -30,7 +30,7 @@ std::vector<Sql1::ErrmsgSPtr> Sql1::CreateTable::checkSpannerSyntax() const
 
 	if (! is_allowed_name(mName))
 	{
-		errors.emplace_back(Errmsg::fatal(std::string("table=[") + mName + "] 規則違反の名前です"));
+		errors.emplace_back(Errmsg::fatal(S_("table=[") + mName + "] " + T_("Name violates the rules")));
 	}
 
 	for (const auto& coldef: mColdefs)
@@ -39,7 +39,7 @@ std::vector<Sql1::ErrmsgSPtr> Sql1::CreateTable::checkSpannerSyntax() const
 
 		if (! is_allowed_name(coldef->getName()))
 		{
-			errors.emplace_back(Errmsg::fatal(key + "規則違反の名前です"));
+			errors.emplace_back(Errmsg::fatal(key + T_("Name violates the rules")));
 		}
 
 		const auto& coltype = coldef->getColtype();
@@ -48,7 +48,7 @@ std::vector<Sql1::ErrmsgSPtr> Sql1::CreateTable::checkSpannerSyntax() const
 		{
 			if (coltype->getWidthM() == 1)
 			{
-				errors.emplace_back(Errmsg::info(key + "BOOL に変換されます"));
+				errors.emplace_back(Errmsg::info(key + T_("Converted to") + " BOOL"));
 			}
 		}
 
@@ -58,12 +58,12 @@ std::vector<Sql1::ErrmsgSPtr> Sql1::CreateTable::checkSpannerSyntax() const
 			{
 				case Colopt::EType::UNSIGNED:
 				{
-					errors.emplace_back(Errmsg::warn(key + "UNSIGNED は無視されます"));
+					errors.emplace_back(Errmsg::warn(key + "UNSIGNED " + T_("is ignored")));
 					break;
 				}
 				case Colopt::EType::CHARACTER_SET:
 				{
-					errors.emplace_back(Errmsg::warn(key + "CHARACTER SET は無視されます"));
+					errors.emplace_back(Errmsg::warn(key + "'CHARACTER SET' " + T_("is ignored")));
 					break;
 				}
 				case Colopt::EType::DEFAULT:
@@ -81,13 +81,13 @@ std::vector<Sql1::ErrmsgSPtr> Sql1::CreateTable::checkSpannerSyntax() const
 						}
 						case Defval::EType::CURRENT_TIMESTAMP:
 						{
-							errors.emplace_back(Errmsg::warn(s + " は無視されます"));
+							errors.emplace_back(Errmsg::warn(s + " " + T_("is ignored")));
 
 							break;
 						}
 						default:
 						{
-							errors.emplace_back(Errmsg::fatal(s + " は使用できません"));
+							errors.emplace_back(Errmsg::fatal(s + " " + T_("can not be used")));
 
 							break;
 						}
@@ -97,12 +97,12 @@ std::vector<Sql1::ErrmsgSPtr> Sql1::CreateTable::checkSpannerSyntax() const
 				}
 				case Colopt::EType::AUTO_INCREMENT:
 				{
-					errors.emplace_back(Errmsg::fatal(key + "AUTO_INCREMENT は使用できません"));
+					errors.emplace_back(Errmsg::fatal(key + "AUTO_INCREMENT " + T_("can not be used")));
 					break;
 				}
 				case Colopt::EType::COMMENT:
 				{
-					errors.emplace_back(Errmsg::warn(key + "COMMENT は無視されます"));
+					errors.emplace_back(Errmsg::warn(key + "COMMENT " + T_("is ignored")));
 					break;
 				}
 				default:
@@ -133,7 +133,7 @@ std::vector<Sql1::ErrmsgSPtr> Sql1::CreateTable::checkSpannerSyntax() const
 					{
 						case Refoption::EType::UPDATE:
 						{
-							errors.emplace_back(Errmsg::fatal(key + "ON UPDATE は使用できません"));
+							errors.emplace_back(Errmsg::fatal(key + "ON UPDATE " + T_("can not be used")));
 
 							break;
 						}
@@ -148,13 +148,13 @@ std::vector<Sql1::ErrmsgSPtr> Sql1::CreateTable::checkSpannerSyntax() const
 					{
 						case Refoption::EAction::RESTRICT:
 						{
-							errors.emplace_back(Errmsg::warn(key + "NO ACTION に変更されます"));
+							errors.emplace_back(Errmsg::warn(key + T_("Converted to") + " 'NO ACTION'"));
 
 							break;
 						}
 						case Refoption::EAction::SET_NUL:
 						{
-							errors.emplace_back(Errmsg::fatal(key + "SET NULL は使用できません"));
+							errors.emplace_back(Errmsg::fatal(key + "'SET NULL' " + T_("is ignored")));
 
 							break;
 						}
@@ -176,12 +176,12 @@ std::vector<Sql1::ErrmsgSPtr> Sql1::CreateTable::checkSpannerSyntax() const
 	{
 		assert(num_pk == 0);
 
-		errors.emplace_back(Errmsg::fatal("主キーは必須です"));
+		errors.emplace_back(Errmsg::fatal(T_("Primary key is required")));
 	}
 
 	if (num_fk > 1)
 	{
-		errors.emplace_back(Errmsg::fatal("外部キーに指定できるのは 1 つのみです"));
+		errors.emplace_back(Errmsg::fatal(T_("Only one can be specified as a foreign key")));
 	}
 
 	return std::move(errors);
