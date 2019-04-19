@@ -77,6 +77,9 @@
 	#define S1_ASSERT(a, b)		if (! (a)) { S1_ERROR((b)); }
 	#define S1_SWAP(a, b)		if (! (b)) { S1_ERROR("swap source is null"); } std::swap((a), (b))
 
+	#define ERRMSG_ON()			driver_.print_errmsg = true
+	#define ERRMSG_OFF()		driver_.print_errmsg = false
+
 	static std::map<std::string, Sql1::CreateTableSPtr> create_tables;
 
 	static Sql1::CreateTableSPtr curr_table;
@@ -314,8 +317,14 @@ stmt
 
 ddl
 	: "create" "table" ident[tabname] "(" coldef.list[coldefs]
-		tabcond.list.or.empty[tabconds] ")" tabopt.list.or.empty
+	  tabcond.list.or.empty[tabconds] ")"
 		{
+			ERRMSG_OFF();
+		}
+	  tabopt.list.or.empty
+		{
+			ERRMSG_ON();
+
 			assert(create_tables.find($tabname) == create_tables.end());
 
 			auto o = CreateTableSPtr{ new CreateTable{ $tabname, std::move($coldefs), std::move($tabconds) } };
@@ -794,33 +803,6 @@ ident
 
 tabopt.list.or.empty
 	: %empty
-		{
-		}
-	| tabopt.list
-		{
-		}
-	;
-
-tabopt.list
-	: tabopt.list[orig] tabopt
-		{
-		}
-	| tabopt
-		{
-		}
-	;
-
-tabopt
-	: "engine" "=" IDENTIFIER
-		{
-		}
-	| "auto_increment" "=" INT_LITERAL
-		{
-		}
-	| "default" "charset" "=" IDENTIFIER
-		{
-		}
-	| "comment" "=" STRING_LITERAL
 		{
 		}
 	| error ";"

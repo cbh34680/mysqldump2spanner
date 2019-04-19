@@ -22,6 +22,7 @@ namespace Sql1
 	{
 	public:
 		Context* context;
+		bool print_errmsg = true;
 
 		explicit Driver(Context* arg_context) : context{ arg_context } { }
 
@@ -33,6 +34,11 @@ namespace Sql1
 		void error(std::ostream& os, const location& arg_loc, std::string msg,
 			const char* file, int line) const
 		{
+			if (! print_errmsg)
+			{
+				return;
+			}
+
 			os << EndL;
 			os << "# FILE   : " << file << EndL;
 			os << "# LINE   : " << line << EndL;

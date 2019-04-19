@@ -10,17 +10,18 @@ MySQL の mysqldump コマンドで出力した内容を Google Spanner の形�
 Linux Host1 3.10.0-957.10.1.el7.x86_64 #1 SMP Mon Mar 18 15:06:45 UTC 2019 x86_64 x86_64 x86_64 GNU/Linux
 [user@host]$ cat /etc/redhat-release
 CentOS Linux release 7.6.1810 (Core)
-[user@host] $ rpm -q gcc
-gcc-4.8.5-36.el7_6.1.x86_64
 [user@host]$ rpm -q bison
 bison-3.0.4-2.el7.x86_64
 [user@host]$ rpm -q flex
 flex-2.5.37-6.el7.x86_64
-[user@host]$ php -v
-PHP 7.2.17 (cli) (built: Apr  3 2019 10:02:16) ( NTS )
-Copyright (c) 1997-2018 The PHP Group
-Zend Engine v3.2.0, Copyright (c) 1998-2018 Zend Technologies
-    with Zend OPcache v7.2.17, Copyright (c) 1999-2018, by Zend Technologies
+[user@host]$ rpm -q php
+php-7.2.17-1.el7.remi.x86_64
+[user@host] ]$ g++ --version
+g++ (GCC) 4.8.5 20150623 (Red Hat 4.8.5-36)
+Copyright (C) 2015 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 ```
 
 ## build
