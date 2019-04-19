@@ -32,7 +32,6 @@ function init_database($instanceId, $databaseId)
 	$client = new SpannerClient();
 
 	$inst = $client->instance($instanceId);
-
 	$db = $inst->database($databaseId);
 
 	if ($db->exists())
@@ -76,7 +75,6 @@ function exec_sql($db, $sql)
 			echo 'Execute DML... ';
 
 			$modifiedRowCount = $t->executeUpdate($sql);
-
 			$t->commit();
 
 			echo "${modifiedRowCount} row" . PHP_EOL;

@@ -111,7 +111,7 @@ INSERT INTO (skey,data,num,rate,flag,dtime) VALUES ('A001','abc \' def \t hij \n
 ;
 ```
 
-## impor (additional sample)
+## import (additional sample)
 
 ```
 [user@host]$ MYSQL_PWD=migtest_pass mysqldump -umigtest_user migtest | ./mysqldump2spanner.exe -D > output.sql.txt 2> /dev/null
