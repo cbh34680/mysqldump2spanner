@@ -6,7 +6,7 @@
 #
 msgid ""
 msgstr ""
-"Project-Id-Version: mysqldump 2spanner\n"
+"Project-Id-Version: mysqldump2spanner\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-04-19 09:07+0900\n"
 "PO-Revision-Date: 2019-04-19 09:07+0900\n"
@@ -61,3 +61,11 @@ msgstr "INSERT 時の VALUE の数を制限"
 #: main.cpp:156
 msgid "Do not generate 'DROP TABLE'"
 msgstr "'DROP TABLE' を生成しません"
+
+#: parser.yy:297
+msgid "Detected a failure that can not continue"
+msgstr "継続できない障害を検出しました"
+
+#: parser.yy:353
+msgid "Unrecognized table name"
+msgstr "認識されないテーブル名です"

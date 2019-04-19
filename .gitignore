@@ -51,6 +51,7 @@
 /*.hh
 /*.cc
 /*.memo
+/*.pot
 
 /composer.phar
 /google-cloud-php/
