@@ -123,7 +123,16 @@ bool parse_args(int argc, char** argv, Sql1::MainConfig& config)
 int main(int argc, char** argv)
 {
 	setlocale(LC_ALL, "");
-	bindtextdomain("mysqldump2spanner", ".");
+
+	if (const char* tddir = getenv("TEXTDOMAINDIR"))
+	{
+		bindtextdomain("mysqldump2spanner", tddir);
+	}
+	else
+	{
+		bindtextdomain("mysqldump2spanner", ".");
+	}
+
 	textdomain("mysqldump2spanner");
 
 	Sql1::MainConfig config;
