@@ -1,0 +1,63 @@
+# Japanese translations for mysqldump package
+# mysqldump パッケージに対する英訳.
+# Copyright (C) 2019 THE mysqldump'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the mysqldump package.
+#  <cbh34680@iret.co.jp>, 2019.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: mysqldump 2spanner\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2019-04-19 09:07+0900\n"
+"PO-Revision-Date: 2019-04-19 09:07+0900\n"
+"Last-Translator:  <cbh34680@iret.co.jp>\n"
+"Language-Team: Japanese\n"
+"Language: ja\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+
+#: ddl.cpp:16 ddl.cpp:33 ddl.cpp:42
+msgid "Name violates the rules"
+msgstr "規則違反の名前です"
+
+#: ddl.cpp:21 ddl.cpp:61 ddl.cpp:66 ddl.cpp:84 ddl.cpp:105 ddl.cpp:157
+msgid "is ignored"
+msgstr "は無視されます"
+
+#: ddl.cpp:51
+msgid "Converted to BOOL"
+msgstr "BOOL に変換されます"
+
+#: ddl.cpp:90 ddl.cpp:100 ddl.cpp:136
+msgid "can not be used"
+msgstr "は無視されます"
+
+#: ddl.cpp:151
+msgid "Converted to 'NO ACTION'"
+msgstr "'NO ACTION' に変更されます"
+
+#: ddl.cpp:179
+msgid "Primary key is required"
+msgstr "主キーは必須です"
+
+#: ddl.cpp:184
+msgid "Only one can be specified as a foreign key"
+msgstr "外部キーに指定できるのは 1 つのみです"
+
+#: main.cpp:149
+msgid "display this help and exit"
+msgstr "この使い方を表示して終了する"
+
+#: main.cpp:151
+msgid "output version information and exit"
+msgstr "バージョン情報を表示して終了する"
+
+#: main.cpp:153
+msgid "limit the number of values at insert"
+msgstr "INSERT 時の VALUE の数を制限"
+
+#: main.cpp:156
+msgid "Do not generate 'DROP TABLE'"
+msgstr "'DROP TABLE' を生成しません"

@@ -1,38 +1,16 @@
 #pragma once
 
-#if defined(__clang__)
-	#define CPP_CPLUS			(1)
-#elif defined(__GNUG__)
-	#define CPP_GNUG			(1)
-#elif defined(_MSC_VER)
-	#define CPP_MSVC			(1)
-#else
-	#error "unknown compiler"
-#endif
-
-#if defined(__GNUC__)
-	#define UNUSED				__attribute__((unused))
-#else
-	#define UNUSED
-#endif
-
-#if defined(CPP_MSVC)
-	#pragma warning(default:4716)
-#endif
-
 // https://github.com/spacemoose/ostream_indenter
 #include "indent_facet.hpp"
 
-#define Rvalue(a)		std::move(a)
-#define Forward(a)		std::forward<decltype(a)>(a)
+#define EndL					'\n'
 
-#define IsTrue			!!
-#define Not				!
+#define S_(a)					std::string((a))
 
-#define EndL			'\n'
+#define T_(String)				gettext(String)
+#define N_(String)				gettext_noop(String)
+#define gettext_noop(String)	(String)
 
-#define T_(a)			(a)
-#define S_(a)			std::string((a))
 
 namespace Sql1
 {

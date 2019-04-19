@@ -122,6 +122,10 @@ bool parse_args(int argc, char** argv, Sql1::MainConfig& config)
 
 int main(int argc, char** argv)
 {
+	setlocale(LC_ALL, "");
+	bindtextdomain("mysqldump2spanner", ".");
+	textdomain("mysqldump2spanner");
+
 	Sql1::MainConfig config;
 
 	if (! parse_args(argc, argv, config))
@@ -146,7 +150,7 @@ int main(int argc, char** argv)
 
 		std::cerr << "\t" << "-v" << "\t" << T_("output version information and exit") << std::endl;
 
-		std::cerr << "\t" << "-i num" << "\t" << T_("limit the number of VALUE at insert")
+		std::cerr << "\t" << "-i num" << "\t" << T_("limit the number of values at insert")
 													<< " (default 1000, max 10000)" << std::endl;
 
 		std::cerr << "\t" << "-D" << "\t" << T_("Do not generate 'DROP TABLE'") << std::endl;

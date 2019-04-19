@@ -48,7 +48,7 @@ std::vector<Sql1::ErrmsgSPtr> Sql1::CreateTable::checkSpannerSyntax() const
 		{
 			if (coltype->getWidthM() == 1)
 			{
-				errors.emplace_back(Errmsg::info(key + T_("Converted to") + " BOOL"));
+				errors.emplace_back(Errmsg::info(key + T_("Converted to BOOL")));
 			}
 		}
 
@@ -148,7 +148,7 @@ std::vector<Sql1::ErrmsgSPtr> Sql1::CreateTable::checkSpannerSyntax() const
 					{
 						case Refoption::EAction::RESTRICT:
 						{
-							errors.emplace_back(Errmsg::warn(key + T_("Converted to") + " 'NO ACTION'"));
+							errors.emplace_back(Errmsg::warn(key + T_("Converted to 'NO ACTION'")));
 
 							break;
 						}

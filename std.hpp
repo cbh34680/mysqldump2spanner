@@ -15,3 +15,6 @@
 #include <map>
 #include <vector>
 
+#include <locale.h>
+#include <libintl.h>
+

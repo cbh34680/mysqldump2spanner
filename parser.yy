@@ -294,7 +294,7 @@ stmt
 					{
 						if (! e->canIgnore())
 						{
-							S1_ERROR("続行できない障害を検出しました");
+							S1_ERROR(T_("Detected a failure that can not continue"));
 						}
 					}
 				}
@@ -350,7 +350,7 @@ dml
 		{
 			if (create_tables.find($tabname) == create_tables.end())
 			{
-				S1_ERROR(S_("[") + $tabname + "]: 認識できないテーブル名です");
+				S1_ERROR(S_("[") + $tabname + "]: " + T_("Unrecognized table name"));
 			}
 
 			curr_table = create_tables.at($tabname);

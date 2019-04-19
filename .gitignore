@@ -50,6 +50,7 @@
 
 /*.hh
 /*.cc
+/*.memo
 
 /composer.phar
 /google-cloud-php/

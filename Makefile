@@ -50,6 +50,7 @@ $(TARGET): parser.o scanner.o ddl.o main.o
 	@echo
 	@echo "*** link ***"
 	$(CXX) $(CXXFLAGS) -o $@ $^
+	msgfmt -o ja/LC_MESSAGES/mysqldump2spanner.mo mysqldump2spanner.po
 	@echo
 
 print:
