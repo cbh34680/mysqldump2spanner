@@ -120,10 +120,16 @@ bool parse_args(int argc, char** argv, Sql1::MainConfig& config)
 	return ret;
 }
 
+#define DEFINE_TO_STRING_(a)		#a
+#define DEFINE_TO_STRING(a)			DEFINE_TO_STRING_(a)
+
 int main(int argc, char** argv)
 {
 	setlocale(LC_ALL, "");
 
+#if defined(TEXTDOMAINDIR)
+	bindtextdomain("mysqldump2spanner", DEFINE_TO_STRING(TEXTDOMAINDIR));
+#else
 	if (const char* tddir = getenv("TEXTDOMAINDIR"))
 	{
 		bindtextdomain("mysqldump2spanner", tddir);
@@ -132,6 +138,7 @@ int main(int argc, char** argv)
 	{
 		bindtextdomain("mysqldump2spanner", ".");
 	}
+#endif
 
 	textdomain("mysqldump2spanner");
 

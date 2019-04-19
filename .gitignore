@@ -40,7 +40,8 @@
 /*.bak
 /*.back
 /*.exe
-/*.memo
+/*.ii
+/*.s
 /*.o
 /*.out
 /*.pch

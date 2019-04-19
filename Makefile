@@ -8,13 +8,14 @@
 .SUFFIXES: .cc, .hh, .hpp, .exe
 
 # --------------------------->>
-OPTIONS := -std=c++11 -Wall -Wextra -g -O0 -pipe
+#OPTIONS := -std=c++11 -Wall -Wextra -g -O0 -pipe
+OPTIONS := -std=c++11 -Wall -Wextra -g -O0 -save-temps
 
 CXX := g++
 #CXX := g++-8
 #CXX := clang++-6.0
 
-CXXFLAGS := $(OPTIONS) -include std.hpp
+CXXFLAGS := $(OPTIONS) -include std.hpp -DTEXTDOMAINDIR="$(shell pwd)/locale"
 #CXXFLAGS := $(OPTIONS) -include-pch std.hpp.pch
 # ---------------------------<<
 
@@ -50,7 +51,7 @@ $(TARGET): parser.o scanner.o ddl.o main.o
 	@echo
 	@echo "*** link ***"
 	$(CXX) $(CXXFLAGS) -o $@ $^
-	msgfmt -o ja/LC_MESSAGES/mysqldump2spanner.mo mysqldump2spanner.po
+	msgfmt -o locale/ja/LC_MESSAGES/mysqldump2spanner.mo mysqldump2spanner.po
 	@echo
 
 print:
