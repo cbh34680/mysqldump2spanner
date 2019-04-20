@@ -27,7 +27,7 @@ use Google\Cloud\Spanner\Transaction;
 
 class GotoExit extends Exception { }
 
-function init_database($instanceId, $databaseId)
+function init_database($instanceId, $databaseId, $dropdbConfirm)
 {
 	$client = new SpannerClient();
 
@@ -38,23 +38,34 @@ function init_database($instanceId, $databaseId)
 
 	if ($db_exists)
 	{
-		$ans = readline("Do you really want to drop the '${databaseId}' database [y/N] ");
-		if ($ans == 'y')
+		if ($dropdbConfirm)
+		{
+			$ans = readline("Do you really want to drop the '${databaseId}' database [y/N] ");
+			if ($ans == 'y')
+			{
+				$db->drop();
+
+				echo 'Database has been deleted.' . PHP_EOL;
+
+				$db_exists = false;
+			}
+			else
+			{
+				$ans = readline('Do you want to continue [y/N] ');
+
+				if ($ans != 'y')
+				{
+					throw new GotoExit('Cancelled.');
+				}
+			}
+		}
+		else
 		{
 			$db->drop();
 
 			echo 'Database has been deleted.' . PHP_EOL;
 
 			$db_exists = false;
-		}
-		else
-		{
-			$ans = readline('Do you want to continue [y/N] ');
-
-			if ($ans != 'y')
-			{
-				throw new GotoExit('Cancelled.');
-			}
 		}
 	}
 
@@ -73,7 +84,6 @@ function init_database($instanceId, $databaseId)
 
 function exec_sql($db, $sql)
 {
-
 	echo PHP_EOL . "\t# " . rtrim(str_replace(PHP_EOL, ' ', substr($sql, 0, 40)));
 	echo (strlen($sql) > 40) ? '...' : '';
 	echo PHP_EOL . PHP_EOL;
@@ -126,9 +136,9 @@ function import_file($db, $fp)
 	}
 }
 
-function Main($instanceId, $databaseId, $fp)
+function Main($instanceId, $databaseId, $fp, $dropdbConfirm)
 {
-	$db = init_database($instanceId, $databaseId);
+	$db = init_database($instanceId, $databaseId, $dropdbConfirm);
 
 	import_file($db, $fp);
 }
@@ -137,23 +147,33 @@ $rc = 0;
 
 try
 {
-	if ($argc != 4)
+	$opts = getopt('Ni:d:f:');
+
+	foreach (['i', 'd', 'f'] as $k)
 	{
-		throw new Exception("Usage: ${argv[0]} instance-id database-id input-file.sql");
+		if (! isset($opts[$k]))
+		{
+			throw new Exception("Usage: ${argv[0]} {-N} -i instance-id -d database-id -f input-file.sql");
+		}
 	}
 
-	if (! file_exists($argv[3]))
+	$instanceId = $opts['i'];
+	$databaseId = $opts['d'];
+	$inputFile = $opts['f'];
+	$dropdbConfirm = isset($opts['N']) ? false : true;
+
+	if (! file_exists($inputFile))
 	{
-		throw new Exception($argv[3] . ': file not found');
+		throw new Exception($inputFile . ': file not found');
 	}
 
-	$fp = fopen($argv[3], 'r');
+	$fp = fopen($inputFile, 'r');
 	if (! $fp)
 	{
-		throw new Exception($argv[3] . ': file open error');
+		throw new Exception($inputFile . ': file open error');
 	}
 
-	Main($argv[1], $argv[2], $fp);
+	Main($instanceId, $databaseId, $fp, $dropdbConfirm);
 
 	echo PHP_EOL . 'all done.' . PHP_EOL;
 }
