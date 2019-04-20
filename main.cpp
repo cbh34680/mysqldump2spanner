@@ -103,7 +103,7 @@ bool parse_args(int argc, char** argv, Sql1::MainConfig& config)
 			}
 			default:
 			{
-				std::cerr << "'" << static_cast<char>(optc) << "': unknown option" << std::endl;
+				std::cerr << "unknown option" << std::endl;
 
 				ret = false;
 
@@ -118,6 +118,20 @@ bool parse_args(int argc, char** argv, Sql1::MainConfig& config)
 	}
 
 	return ret;
+}
+
+static void print_help(std::ostream& os, const char* pgname)
+{
+	os << "Usage: " << pgname << " [OPTIONS] < [FILE]" << std::endl << std::endl;
+
+	os << "\t" << "-h" << "\t" << T_("display this help and exit") << std::endl;
+
+	os << "\t" << "-v" << "\t" << T_("output version information and exit") << std::endl;
+
+	os << "\t" << "-i num" << "\t" << T_("limit the number of values at insert")
+													<< " (default 1000, max 10000)" << std::endl;
+
+	os << "\t" << "-D" << "\t" << T_("Do not generate 'DROP TABLE'") << std::endl;
 }
 
 #define DEFINE_TO_STRING_(a)		#a
@@ -146,30 +160,23 @@ int main(int argc, char** argv)
 
 	if (! parse_args(argc, argv, config))
 	{
-		std::cerr << "- Argument Parse error." << std::endl;
+		std::cerr << std::endl;
+
+		print_help(std::cerr, argv[0]);
 
 		return 1;
+	}
+
+	if (config.print_help)
+	{
+		print_help(std::cerr, argv[0]);
+
+		return 0;
 	}
 
 	if (config.print_version)
 	{
 		std::cerr << "mysqldump2spanner 1.0.0" << std::endl;
-
-		return 0;
-	}
-
-	if (config.print_help)
-	{
-		std::cerr << "Usage: " << argv[0] << " [OPTIONS] < [FILE]" << std::endl << std::endl;
-
-		std::cerr << "\t" << "-h" << "\t" << T_("display this help and exit") << std::endl;
-
-		std::cerr << "\t" << "-v" << "\t" << T_("output version information and exit") << std::endl;
-
-		std::cerr << "\t" << "-i num" << "\t" << T_("limit the number of values at insert")
-													<< " (default 1000, max 10000)" << std::endl;
-
-		std::cerr << "\t" << "-D" << "\t" << T_("Do not generate 'DROP TABLE'") << std::endl;
 
 		return 0;
 	}

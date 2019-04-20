@@ -139,14 +139,8 @@ $rc = 0;
 
 try
 {
-	$usage = "Usage: ${argv[0]} {-N} -i instance-id -d database-id -f input-file.sql";
-
-	$opts = getopt('hNi:d:f:');
-
-	if (isset($opts['h']))
-	{
-		$str =<<< EOS
-${usage}
+	$helptext =<<< EOS
+Usage: ${argv[0]} {-h} {-N} -i instance-id -d database-id -f input-file.sql
 
 \t-h\tdisplay this help and exit
 \t-i\tspanner instance id
@@ -155,14 +149,18 @@ ${usage}
 \t-N\tno drop database
 EOS;
 
-		throw new GotoExit($str);
+	$opts = getopt('hNi:d:f:');
+
+	if (isset($opts['h']))
+	{
+		throw new GotoExit($helptext);
 	}
 
 	foreach (['i', 'd', 'f'] as $k)
 	{
 		if (! isset($opts[$k]))
 		{
-			throw new GotoExit($usage);
+			throw new GotoExit($helptext);
 		}
 	}
 
