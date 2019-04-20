@@ -139,13 +139,30 @@ $rc = 0;
 
 try
 {
-	$opts = getopt('Ni:d:f:');
+	$usage = "Usage: ${argv[0]} {-N} -i instance-id -d database-id -f input-file.sql";
+
+	$opts = getopt('hNi:d:f:');
+
+	if (isset($opts['h']))
+	{
+		$str =<<< EOS
+${usage}
+
+\t-h\tdisplay this help and exit
+\t-i\tspanner instance id
+\t-d\tspanner database id
+\t-f\tinput sql file
+\t-N\tno drop database
+EOS;
+
+		throw new GotoExit($str);
+	}
 
 	foreach (['i', 'd', 'f'] as $k)
 	{
 		if (! isset($opts[$k]))
 		{
-			throw new Exception("Usage: ${argv[0]} {-N} -i instance-id -d database-id -f input-file.sql");
+			throw new GotoExit($usage);
 		}
 	}
 
@@ -171,7 +188,7 @@ try
 }
 catch (GotoExit $ex)
 {
-	echo PHP_EOL . $ex->getMessage() . PHP_EOL;
+	echo $ex->getMessage() . PHP_EOL;
 
 	$rc = 2;
 }
