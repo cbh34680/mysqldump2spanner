@@ -34,31 +34,50 @@ function init_database($instanceId, $databaseId)
 	$inst = $client->instance($instanceId);
 	$db = $inst->database($databaseId);
 
-	if ($db->exists())
+	$db_exists = $db->exists();
+
+	if ($db_exists)
 	{
 		$ans = readline("Do you really want to drop the '${databaseId}' database [y/N] ");
-		if ($ans !== 'y')
+		if ($ans == 'y')
 		{
-			throw new GotoExit("Cancelled.");
+			$db->drop();
+
+			echo 'Database has been deleted.' . PHP_EOL;
+
+			$db_exists = false;
 		}
+		else
+		{
+			$ans = readline('Do you want to continue [y/N] ');
 
-		$db->drop();
-
-		echo 'Database has been deleted.' . PHP_EOL;
+			if ($ans != 'y')
+			{
+				throw new GotoExit('Cancelled.');
+			}
+		}
 	}
 
-	echo 'Waiting for the database to be created... ';
+	if (! $db_exists)
+	{
+		echo 'Waiting for the database to be created... ';
 
-	$operation = $db->create();
-	$operation->pollUntilComplete();
+		$operation = $db->create();
+		$operation->pollUntilComplete();
 
-	echo 'done.' . PHP_EOL;
+		echo 'done.' . PHP_EOL;
+	}
 
 	return $db;
 }
 
 function exec_sql($db, $sql)
 {
+
+	echo PHP_EOL . "\t# " . rtrim(str_replace(PHP_EOL, ' ', substr($sql, 0, 40)));
+	echo (strlen($sql) > 40) ? '...' : '';
+	echo PHP_EOL . PHP_EOL;
+
 	if (preg_match('/^[[:space:]]*(create|drop|alter)/i', $sql))
 	{
 		echo 'Waiting for DDL to complete... ';
