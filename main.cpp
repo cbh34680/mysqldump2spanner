@@ -55,7 +55,7 @@ bool parse_args(int argc, char** argv, Sql1::MainConfig& config)
 
 	int optc;
 
-	while ((optc = getopt(argc, argv, "vhDi:")) != -1)
+	while ((optc = getopt(argc, argv, "vhDi:Z:")) != -1)
 	{
 		switch (optc)
 		{
@@ -101,6 +101,12 @@ bool parse_args(int argc, char** argv, Sql1::MainConfig& config)
 
 				break;
 			}
+			case 'Z':
+			{
+				config.timestamp_timezone = optarg;
+
+				break;
+			}
 			default:
 			{
 				std::cerr << "unknown option" << std::endl;
@@ -132,6 +138,7 @@ static void print_help(std::ostream& os, const char* pgname)
 													<< " (default 1000, max 10000)" << std::endl;
 
 	os << "\t" << "-D" << "\t" << T_("Do not generate 'DROP TABLE'") << std::endl;
+	os << "\t" << "-Z" << "\t" << T_("Specify time zone to be given to the value of TIMESTAMP column (ex. Asia/Tokyo)") << std::endl;
 }
 
 #define DEFINE_TO_STRING_(a)		#a

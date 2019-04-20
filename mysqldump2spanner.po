@@ -62,6 +62,10 @@ msgstr "INSERT 時の VALUE の数を制限"
 msgid "Do not generate 'DROP TABLE'"
 msgstr "'DROP TABLE' を生成しません"
 
+#: main.cpp:141
+msgid "Specify time zone to be given to the value of TIMESTAMP column (ex. Asia/Tokyo)"
+msgstr "TIMESTAMP 列の値に付与するタイムゾーンを指定する (ex. Asia/Tokyo)"
+
 #: parser.yy:297
 msgid "Detected a failure that can not continue"
 msgstr "継続できない障害を検出しました"
@@ -69,3 +73,4 @@ msgstr "継続できない障害を検出しました"
 #: parser.yy:353
 msgid "Unrecognized table name"
 msgstr "認識されないテーブル名です"
+

@@ -34,7 +34,7 @@ echo
 #  cat ${insql} | ./${exefile} "$@" > ${outsql}
 #fi
 
-cat ${insql} | ./${exefile} "$@" > ${outsql}
+cat ${insql} | ./${exefile} -Z 'Asia/Tokyo' "$@" > ${outsql}
 rc=${PIPESTATUS[1]}
 
 if [[ $rc = 0 ]]

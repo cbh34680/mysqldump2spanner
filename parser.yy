@@ -466,7 +466,21 @@ value
 		}
 	| STRING_LITERAL[orig]
 		{
-			$$ = std::move(S_("'") + $orig + "'");
+			const auto& coltype = curr_table->getColdef(value_pos)->getColtype();
+
+			if ((coltype->getType() == Coltype::EType::DATETIME) ||
+				(coltype->getType() == Coltype::EType::TIMESTAMP))
+			{
+				if (! drv_ctx->config->timestamp_timezone.empty())
+				{
+					$$ = S_("'") + $orig + " " + drv_ctx->config->timestamp_timezone + "'";
+				}
+			}
+
+			if ($$.empty())
+			{
+				$$ = S_("'") + $orig + "'";
+			}
 		}
 	| INT_LITERAL[orig]
 		{
@@ -492,12 +506,12 @@ value
 
 			if ($$.empty())
 			{
-				$$ = std::move(std::to_string($orig));
+				$$ = std::to_string($orig);
 			}
 		}
 	| DOUBLE_LITERAL[orig]
 		{
-			$$ = std::move(std::to_string($orig));
+			$$ = std::to_string($orig);
 		}
 	;
 

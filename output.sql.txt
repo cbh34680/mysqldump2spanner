@@ -9,7 +9,7 @@ CREATE TABLE tab1 (
   dtime TIMESTAMP NOT NULL,
 ) PRIMARY KEY(skey)
 ;
-INSERT INTO tab1 (skey,data,num,rate,flag,dtime) VALUES ('A001','abc \' def \t hij \n klm',NULL,12097.664000,FALSE,'2019-04-17 23:06:13'),('A002','ABC\"',1,12097.664000,FALSE,'2019-04-17 23:06:13'),('A003','a\"',55,6.600000,FALSE,'2019-04-18 04:16:18')
+INSERT INTO tab1 (skey,data,num,rate,flag,dtime) VALUES ('A001','abc \' def \t hij \n klm',NULL,12097.664000,FALSE,'2019-04-17 23:06:13 Asia/Tokyo'),('A002','ABC\"',1,12097.664000,FALSE,'2019-04-17 23:06:13 Asia/Tokyo'),('A003','a\"',55,6.600000,FALSE,'2019-04-18 04:16:18 Asia/Tokyo')
 ;
 DROP TABLE tab2 
 ;
