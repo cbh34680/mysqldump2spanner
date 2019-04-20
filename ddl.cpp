@@ -371,7 +371,7 @@ std::string Sql1::Tabcond::convert2(const std::string& tabname) const
 			ret += "CREATE ";
 			ret += unique ? "UNIQUE " : "";
 			ret += "INDEX ";
-			ret += mName + " ON ";
+			ret += tabname + '_' + mName + " ON ";
 			ret += tabname + " (";
 			ret += join_strs(mColnames, ",") + ")";
 
