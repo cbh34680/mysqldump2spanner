@@ -27,7 +27,7 @@ use Google\Cloud\Spanner\Transaction;
 
 class GotoExit extends Exception { }
 
-function init_database($instanceId, $databaseId, $dropdbConfirm)
+function init_database($instanceId, $databaseId, $dropdb)
 {
 	$client = new SpannerClient();
 
@@ -38,7 +38,7 @@ function init_database($instanceId, $databaseId, $dropdbConfirm)
 
 	if ($db_exists)
 	{
-		if ($dropdbConfirm)
+		if ($dropdb)
 		{
 			$ans = readline("Do you really want to drop the '${databaseId}' database [y/N] ");
 			if ($ans == 'y')
@@ -58,14 +58,6 @@ function init_database($instanceId, $databaseId, $dropdbConfirm)
 					throw new GotoExit('Cancelled.');
 				}
 			}
-		}
-		else
-		{
-			$db->drop();
-
-			echo 'Database has been deleted.' . PHP_EOL;
-
-			$db_exists = false;
 		}
 	}
 
@@ -136,9 +128,9 @@ function import_file($db, $fp)
 	}
 }
 
-function Main($instanceId, $databaseId, $fp, $dropdbConfirm)
+function Main($instanceId, $databaseId, $fp, $dropdb)
 {
-	$db = init_database($instanceId, $databaseId, $dropdbConfirm);
+	$db = init_database($instanceId, $databaseId, $dropdb);
 
 	import_file($db, $fp);
 }
@@ -160,7 +152,7 @@ try
 	$instanceId = $opts['i'];
 	$databaseId = $opts['d'];
 	$inputFile = $opts['f'];
-	$dropdbConfirm = isset($opts['N']) ? false : true;
+	$dropdb = isset($opts['N']) ? false : true;
 
 	if (! file_exists($inputFile))
 	{
@@ -173,7 +165,7 @@ try
 		throw new Exception($inputFile . ': file open error');
 	}
 
-	Main($instanceId, $databaseId, $fp, $dropdbConfirm);
+	Main($instanceId, $databaseId, $fp, $dropdb);
 
 	echo PHP_EOL . 'all done.' . PHP_EOL;
 }
