@@ -20,10 +20,10 @@ echo
 echo "**** run ***"
 
 echo "LEAK CHECK <!"
-echo "cat ${insql} | valgrind --leak-check=full -v ./${exefile}"
+echo "cat ${insql} | valgrind --leak-check=full -v ./${exefile} -z 'Asia/Tokyo' $*"
 echo "!>"
 echo "DEBUG <!"
-echo "gdb -q -ex 'set args < ${insql}' -ex 'run' -ex 'where' -ex 'kill' -ex 'quit' ./${exefile}"
+echo "gdb -q -ex 'set args < ${insql}' -ex 'run' -ex 'where' -ex 'kill' -ex 'quit' ./${exefile} -z 'Asia/Tokyo' $*"
 echo "!>"
 echo
 
@@ -34,7 +34,7 @@ echo
 #  cat ${insql} | ./${exefile} "$@" > ${outsql}
 #fi
 
-cat ${insql} | ./${exefile} -Z 'Asia/Tokyo' "$@" > ${outsql}
+cat ${insql} | ./${exefile} -z 'Asia/Tokyo' "$@" > ${outsql}
 rc=${PIPESTATUS[1]}
 
 if [[ $rc = 0 ]]

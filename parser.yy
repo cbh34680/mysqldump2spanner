@@ -329,6 +329,9 @@ ddl
 
 			auto o = CreateTableSPtr{ new CreateTable{ $tabname, std::move($coldefs), std::move($tabconds) } };
 
+			o->setNoInterleaveInParent(drv_ctx->config->no_interleave_in_parent);
+			o->setNoCreateIndex(drv_ctx->config->no_create_index);
+
 			create_tables[$tabname] = o;
 
 			$$ = o;

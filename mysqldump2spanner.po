@@ -32,7 +32,7 @@ msgstr "BOOL に変換されます"
 
 #: ddl.cpp:90 ddl.cpp:100 ddl.cpp:136
 msgid "can not be used"
-msgstr "は無視されます"
+msgstr "は使用できません"
 
 #: ddl.cpp:151
 msgid "Converted to 'NO ACTION'"
@@ -58,9 +58,17 @@ msgstr "バージョン情報を表示して終了する"
 msgid "limit the number of values at insert"
 msgstr "INSERT 時の VALUE の数を制限"
 
-#: main.cpp:156
+#: main.cpp:153
 msgid "Do not generate 'DROP TABLE'"
 msgstr "'DROP TABLE' を生成しません"
+
+#: main.cpp:154
+msgid "Do not generate 'INTERLEAVE IN PARENT'"
+msgstr "'INTERLEAVE IN PARENT' を生成しません"
+
+#: main.cpp:155
+msgid "Do not generate 'CREATE INDEX'"
+msgstr "'CREATE INDEX' を生成しません"
 
 #: main.cpp:141
 msgid "Specify time zone to be given to the value of TIMESTAMP column (ex. Asia/Tokyo)"

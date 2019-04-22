@@ -55,7 +55,7 @@ bool parse_args(int argc, char** argv, Sql1::MainConfig& config)
 
 	int optc;
 
-	while ((optc = getopt(argc, argv, "vhDi:Z:")) != -1)
+	while ((optc = getopt(argc, argv, "vhDFIi:z:")) != -1)
 	{
 		switch (optc)
 		{
@@ -95,15 +95,27 @@ bool parse_args(int argc, char** argv, Sql1::MainConfig& config)
 
 				break;
 			}
+			case 'z':
+			{
+				config.timestamp_timezone = optarg;
+
+				break;
+			}
 			case 'D':
 			{
 				config.no_drop_table = true;
 
 				break;
 			}
-			case 'Z':
+			case 'F':
 			{
-				config.timestamp_timezone = optarg;
+				config.no_interleave_in_parent = true;
+
+				break;
+			}
+			case 'I':
+			{
+				config.no_create_index = true;
 
 				break;
 			}
@@ -137,8 +149,10 @@ static void print_help(std::ostream& os, const char* pgname)
 	os << "\t" << "-i num" << "\t" << T_("limit the number of values at insert")
 													<< " (default 1000, max 10000)" << std::endl;
 
+	os << "\t" << "-z" << "\t" << T_("Specify time zone to be given to the value of TIMESTAMP column (ex. Asia/Tokyo)") << std::endl;
 	os << "\t" << "-D" << "\t" << T_("Do not generate 'DROP TABLE'") << std::endl;
-	os << "\t" << "-Z" << "\t" << T_("Specify time zone to be given to the value of TIMESTAMP column (ex. Asia/Tokyo)") << std::endl;
+	os << "\t" << "-F" << "\t" << T_("Do not generate 'INTERLEAVE IN PARENT'") << std::endl;
+	os << "\t" << "-I" << "\t" << T_("Do not generate 'CREATE INDEX'") << std::endl;
 }
 
 #define DEFINE_TO_STRING_(a)		#a

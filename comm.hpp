@@ -20,9 +20,13 @@ namespace Sql1
 	{
 		bool print_version = false;
 		bool print_help = false;
+
 		unsigned long int insert_limit = 1000UL;
-		bool no_drop_table = false;
 		std::string timestamp_timezone;
+
+		bool no_drop_table = false;
+		bool no_interleave_in_parent = false;
+		bool no_create_index = false;
 	};
 
 	class BadTypeError : public std::runtime_error { public: using runtime_error::runtime_error; };

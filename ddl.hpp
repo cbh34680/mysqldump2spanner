@@ -604,8 +604,8 @@ namespace Sql1
 			return mRefoption;
 		}
 
-		std::string convert1() const;
-		std::string convert2(const std::string& tabname) const;
+		std::string convert1(bool noInterleaveInParent) const;
+		std::string convert2(const std::string& tabname, bool noCreateIndex) const;
 
 	private:
 		EType mType;
@@ -672,6 +672,16 @@ namespace Sql1
 			std::vector<ColdefSPtr>&& coldefs, std::vector<TabcondSPtr>&& tabconds)
 			: mName{ name }, mColdefs{ std::move(coldefs) }, mTabconds{ std::move(tabconds) } { }
 
+		void setNoInterleaveInParent(bool arg)
+		{
+			mNoInterleaveInParent = arg;
+		}
+
+		void setNoCreateIndex(bool arg)
+		{
+			mNoCreateIndex = arg;
+		}
+
 		void output(std::ostream& os) const override
 		{
 			os << "ddl-type=[create] table=[" << mName << "]" << std::endl << std::endl;
@@ -727,6 +737,9 @@ namespace Sql1
 		std::string mName;
 		std::vector<ColdefSPtr> mColdefs;
 		std::vector<TabcondSPtr> mTabconds;
+
+		bool mNoInterleaveInParent = false;
+		bool mNoCreateIndex = false;
 	};
 
 	using CreateTableSPtr = std::shared_ptr<CreateTable>;

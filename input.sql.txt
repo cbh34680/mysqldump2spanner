@@ -29,7 +29,8 @@ CREATE TABLE `tab1` (
   `rate` double DEFAULT NULL,
   `flag` tinyint(1) DEFAULT NULL,
   `dtime` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`skey`)
+  PRIMARY KEY (`skey`),
+  KEY `data` (`data`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -51,8 +52,11 @@ DROP TABLE IF EXISTS `tab2`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tab2` (
-  `a` double NOT NULL,
-  PRIMARY KEY (`a`)
+  `skey` varchar(10) NOT NULL,
+  `subno` int(11) NOT NULL DEFAULT '0',
+  `tdata` text,
+  PRIMARY KEY (`skey`,`subno`),
+  CONSTRAINT `tab2_ibfk_1` FOREIGN KEY (`skey`) REFERENCES `tab1` (`skey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -74,4 +78,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-04-19  7:48:46
+-- Dump completed on 2019-04-22 13:31:25

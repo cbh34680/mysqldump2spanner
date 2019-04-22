@@ -54,59 +54,48 @@ std::vector<Sql1::ErrmsgSPtr> Sql1::CreateTable::checkSpannerSyntax() const
 
 		for (const auto& colopt: coldef->getColopts())
 		{
+			std::string ignore_str;
+
 			switch (colopt->getType())
 			{
+				case Colopt::EType::AUTO_INCREMENT:
+				{
+					errors.emplace_back(Errmsg::fatal(key + "AUTO_INCREMENT " + T_("can not be used")));
+					break;
+				}
 				case Colopt::EType::UNSIGNED:
 				{
-					errors.emplace_back(Errmsg::warn(key + "UNSIGNED " + T_("is ignored")));
+					ignore_str = "UNSIGNED";
 					break;
 				}
 				case Colopt::EType::CHARACTER_SET:
 				{
-					errors.emplace_back(Errmsg::warn(key + "'CHARACTER SET' " + T_("is ignored")));
+					ignore_str = "'CHARACTER SET'";
 					break;
 				}
 				case Colopt::EType::DEFAULT:
 				{
 					const auto& defval = colopt->getDefval();
 
-					std::string s{ key + "DEFAULT(" };
-					s += defval->getValue() + ")";
-
-					switch (defval->getType())
+					if (defval->getType() != Defval::EType::NUL)
 					{
-						case Defval::EType::NUL:
-						{
-							break;
-						}
-						case Defval::EType::CURRENT_TIMESTAMP:
-						{
-							errors.emplace_back(Errmsg::warn(s + " " + T_("is ignored")));
-
-							break;
-						}
-						default:
-						{
-							errors.emplace_back(Errmsg::fatal(s + " " + T_("can not be used")));
-
-							break;
-						}
+						ignore_str = S_("DEFAULT(") + defval->getValue() + ")";
 					}
 
 					break;
 				}
-				case Colopt::EType::AUTO_INCREMENT:
-				{
-					errors.emplace_back(Errmsg::fatal(key + "AUTO_INCREMENT " + T_("can not be used")));
-					break;
-				}
 				case Colopt::EType::COMMENT:
 				{
-					errors.emplace_back(Errmsg::warn(key + "COMMENT " + T_("is ignored")));
+					ignore_str = "COMMENT";
 					break;
 				}
 				default:
 					break;
+			}
+
+			if (! ignore_str.empty())
+			{
+				errors.emplace_back(Errmsg::warn(key + ignore_str + ' ' + T_("is ignored")));
 			}
 		}
 	}
@@ -323,7 +312,7 @@ std::string Sql1::Refoption::convert() const
 	return std::move(ss.str());
 }
 
-std::string Sql1::Tabcond::convert1() const
+std::string Sql1::Tabcond::convert1(bool noInterleaveInParent) const
 {
 	std::string ret;
 
@@ -337,6 +326,12 @@ std::string Sql1::Tabcond::convert1() const
 		}
 		case Tabcond::EType::FOREIGN_KEY:
 		{
+			if (noInterleaveInParent)
+			{
+std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! A\n";
+				break;
+			}
+
 			ret = std::string{ "INTERLEAVE IN PARENT " } + mReftabname;
 
 			if (mRefoption)
@@ -354,26 +349,29 @@ std::string Sql1::Tabcond::convert1() const
 	return std::move(ret);
 }
 
-std::string Sql1::Tabcond::convert2(const std::string& tabname) const
+std::string Sql1::Tabcond::convert2(const std::string& tabname, bool noCreateIndex) const
 {
 	std::string ret;
-
-	bool unique{ false };
 
 	switch (mType)
 	{
 		case Tabcond::EType::UNIQUE_KEY:
 		{
-			unique = true;
+			ret = S_("CREATE UNIQUE INDEX ") + tabname + '_' + mName + " ON ";
+			ret += tabname + " (" + join_strs(mColnames, ",") + ")";
+
+			break;
 		}
 		case Tabcond::EType::KEY:
 		{
-			ret += "CREATE ";
-			ret += unique ? "UNIQUE " : "";
-			ret += "INDEX ";
-			ret += tabname + '_' + mName + " ON ";
-			ret += tabname + " (";
-			ret += join_strs(mColnames, ",") + ")";
+			if (noCreateIndex)
+			{
+std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! B\n";
+				break;
+			}
+
+			ret = S_("CREATE INDEX ") + tabname + '_' + mName + " ON ";
+			ret += tabname + " (" + join_strs(mColnames, ",") + ")";
 
 			break;
 		}
@@ -415,7 +413,7 @@ std::string Sql1::CreateTable::convert() const
 
 	for (const auto& tabcond: mTabconds)
 	{
-		const std::string s{ tabcond->convert1() };
+		const std::string s{ tabcond->convert1(mNoCreateIndex) };
 
 		if (! s.empty())
 		{
@@ -435,7 +433,7 @@ std::string Sql1::CreateTable::convert() const
 
 	for (const auto& tabcond: mTabconds)
 	{
-		const std::string s{ tabcond->convert2(mName) };
+		const std::string s{ tabcond->convert2(mName, mNoInterleaveInParent) };
 
 		if (! s.empty())
 		{
