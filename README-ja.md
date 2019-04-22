@@ -2,8 +2,21 @@
 
 MySQL の mysqldump コマンドで出力した内容を Google Spanner の形式に変換するツール  
 
+## usage
+```
+[user@host]$ ./mysqldump2spanner.exe -h
+Usage: ./mysqldump2spanner.exe [OPTIONS] < [FILE]
 
-## env
+        -h      この使い方を表示して終了する
+        -v      バージョン情報を表示して終了する
+        -i num  INSERT 時の VALUE の数を制限 (default 1000, max 10000)
+        -z      TIMESTAMP 列の値に付与するタイムゾーンを指定する (ex. Asia/Tokyo)
+        -D      'DROP TABLE' を生成しません
+        -F      'INTERLEAVE IN PARENT' を生成しません
+        -I      'CREATE INDEX' を生成しません
+```
+
+## 開発環境
 
 ```
 [user@host]$ uname -a
@@ -24,7 +37,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 ```
 
-## build
+## コンパイル方法
 
 ```
 [user@host]$ make
@@ -39,7 +52,7 @@ g++ -std=c++11 -Wall -Wextra -g -O0 -pipe -include std.hpp -c -o main.o main.cpp
 g++ -std=c++11 -Wall -Wextra -g -O0 -pipe -include std.hpp -o mysqldump2spanner.exe parser.o scanner.o ddl.o main.o
 ```
 
-## usage (check)
+## 変換できるか確認
 
 ```
 [user@host]$ MYSQL_PWD=migtest_pass mysql -umigtest_user -Dmigtest -e "show create table tab1\G"
@@ -92,7 +105,7 @@ ddl-type=[ignore] text=[UNLOCK TABLES]
 - Parse success.
 ```
 
-## usage (convert)
+## 変換実行
 
 ```
 [user@host]$ MYSQL_PWD=migtest_pass mysqldump -umigtest_user migtest | ./mysqldump2spanner.exe 2> /dev/null
@@ -111,7 +124,7 @@ INSERT INTO (skey,data,num,rate,flag,dtime) VALUES ('A001','abc \' def \t hij \n
 ;
 ```
 
-## import (additional sample)
+## Spanner へのインポート (サンプル)
 
 ```
 [user@host]$ MYSQL_PWD=migtest_pass mysqldump -umigtest_user migtest | ./mysqldump2spanner.exe -D > output.sql.txt 2> /dev/null

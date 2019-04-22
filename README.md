@@ -2,6 +2,20 @@
 
 A tool to convert the contents output by MySQL's mysqldump command into Google Spanner format
 
+## usage
+```
+[user@hoge]$ ./mysqldump2spanner.exe -h
+Usage: ./mysqldump2spanner.exe [OPTIONS] < [FILE]
+
+        -h      display this help and exit
+        -v      output version information and exit
+        -i num  limit the number of values at insert (default 1000, max 10000)
+        -z      Specify time zone to be given to the value of TIMESTAMP column (ex. Asia/Tokyo)
+        -D      Do not generate 'DROP TABLE'
+        -F      Do not generate 'INTERLEAVE IN PARENT'
+        -I      Do not generate 'CREATE INDEX'
+```
+
 
 ## env
 
@@ -39,7 +53,7 @@ g++ -std=c++11 -Wall -Wextra -g -O0 -pipe -include std.hpp -c -o main.o main.cpp
 g++ -std=c++11 -Wall -Wextra -g -O0 -pipe -include std.hpp -o mysqldump2spanner.exe parser.o scanner.o ddl.o main.o
 ```
 
-## usage (check)
+## run (check)
 
 ```
 [user@host]$ MYSQL_PWD=migtest_pass mysql -umigtest_user -Dmigtest -e "show create table tab1\G"
@@ -92,7 +106,7 @@ ddl-type=[ignore] text=[UNLOCK TABLES]
 - Parse success.
 ```
 
-## usage (convert)
+## run (convert)
 
 ```
 [user@host]$ MYSQL_PWD=migtest_pass mysqldump -umigtest_user migtest | ./mysqldump2spanner.exe 2> /dev/null
