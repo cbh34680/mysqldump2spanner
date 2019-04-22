@@ -149,7 +149,7 @@ static void print_help(std::ostream& os, const char* pgname)
 	os << "\t" << "-i num" << "\t" << T_("limit the number of values at insert")
 													<< " (default 1000, max 10000)" << std::endl;
 
-	os << "\t" << "-z" << "\t" << T_("Specify time zone to be given to the value of TIMESTAMP column (ex. Asia/Tokyo)") << std::endl;
+	os << "\t" << "-z" << "\t" << T_("Specify time zone to be given to the value of TIMESTAMP column (ex. 'Asia/Tokyo')") << std::endl;
 	os << "\t" << "-D" << "\t" << T_("Do not generate 'DROP TABLE'") << std::endl;
 	os << "\t" << "-F" << "\t" << T_("Do not generate 'INTERLEAVE IN PARENT'") << std::endl;
 	os << "\t" << "-I" << "\t" << T_("Do not generate 'CREATE INDEX'") << std::endl;
