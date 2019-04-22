@@ -86,7 +86,8 @@ std::vector<Sql1::ErrmsgSPtr> Sql1::CreateTable::checkSpannerSyntax() const
 				}
 				case Colopt::EType::COMMENT:
 				{
-					ignore_str = "COMMENT";
+					ignore_str = S_("COMMENT('") + colopt->getText() + "')";
+
 					break;
 				}
 				default:

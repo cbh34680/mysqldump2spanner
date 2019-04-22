@@ -95,6 +95,11 @@ DQ			\"
 
 						yy_pop_state();
 					}
+	''				{
+						drv_loc.step();
+
+						temp_str += "\\'";
+					}
 	\t				{
 						drv_loc.step();
 

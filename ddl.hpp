@@ -283,6 +283,11 @@ namespace Sql1
 			return mDefval;
 		}
 
+		const std::string& getText() const
+		{
+			return mText;
+		}
+
 		void output(std::ostream& os) const override
 		{
 			switch (mType)
@@ -333,7 +338,7 @@ namespace Sql1
 				}
 				case EType::COMMENT:
 				{
-					os << "COMMENT(" << mText << ")";
+					os << "COMMENT('" << mText << "')";
 
 					break;
 				}
