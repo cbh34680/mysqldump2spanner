@@ -17,7 +17,7 @@ Usage: ./mysqldump2spanner.exe [OPTIONS] < [FILE]
 ```
 
 
-## env
+## environment
 
 ```
 [user@host]$ uname -a
