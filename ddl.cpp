@@ -329,7 +329,6 @@ std::string Sql1::Tabcond::convert1(bool noInterleaveInParent) const
 		{
 			if (noInterleaveInParent)
 			{
-std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! A\n";
 				break;
 			}
 
@@ -367,7 +366,6 @@ std::string Sql1::Tabcond::convert2(const std::string& tabname, bool noCreateInd
 		{
 			if (noCreateIndex)
 			{
-std::cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! B\n";
 				break;
 			}
 
