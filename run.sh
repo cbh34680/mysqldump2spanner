@@ -20,10 +20,10 @@ echo
 echo "**** run ***"
 
 echo "LEAK CHECK <!"
-echo "cat ${insql} | valgrind --leak-check=full -v ./${exefile} -z 'Asia/Tokyo' $*"
+echo "cat ${insql} | valgrind --leak-check=full -v ./${exefile} $*"
 echo "!>"
 echo "DEBUG <!"
-echo "gdb -q -ex 'set args < ${insql}' -ex 'run' -ex 'where' -ex 'kill' -ex 'quit' ./${exefile} -z 'Asia/Tokyo' $*"
+echo "gdb -q -ex 'set args < ${insql}' -ex 'run' -ex 'where' -ex 'kill' -ex 'quit' ./${exefile} $*"
 echo "!>"
 echo
 

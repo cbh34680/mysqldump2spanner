@@ -10,7 +10,7 @@ Usage: ./mysqldump2spanner.exe [OPTIONS] < [FILE]
         -h      この使い方を表示して終了する
         -v      バージョン情報を表示して終了する
         -i num  INSERT 時の VALUE の数を制限 (default 1000, max 10000)
-        -z      TIMESTAMP 列の値に付与するタイムゾーンを指定する (ex. Asia/Tokyo)
+        -z      TIMESTAMP 列の値に付与するタイムゾーンを指定する (ex. 'Asia/Tokyo')
         -D      'DROP TABLE' を生成しません
         -F      'INTERLEAVE IN PARENT' を生成しません
         -I      'CREATE INDEX' を生成しません

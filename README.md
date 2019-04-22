@@ -10,7 +10,7 @@ Usage: ./mysqldump2spanner.exe [OPTIONS] < [FILE]
         -h      display this help and exit
         -v      output version information and exit
         -i num  limit the number of values at insert (default 1000, max 10000)
-        -z      Specify time zone to be given to the value of TIMESTAMP column (ex. Asia/Tokyo)
+        -z      Specify time zone to be given to the value of TIMESTAMP column (ex. 'Asia/Tokyo')
         -D      Do not generate 'DROP TABLE'
         -F      Do not generate 'INTERLEAVE IN PARENT'
         -I      Do not generate 'CREATE INDEX'
